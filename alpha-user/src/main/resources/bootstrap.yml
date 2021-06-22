@@ -1,0 +1,24 @@
+server:
+  port: 8071
+spring:
+  application:
+    name: alpha-user
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.1.134:8848
+      config:
+        server-addr: 192.168.1.134:8848
+        file-extension: yaml
+        group: DEFAULT_GROUP
+        shared-configs[0]:
+          data-id: common.yaml
+          group: DEFAULT_GROUP
+          refresh: true
+        shared-configs[1]:
+          data-id: config.yaml
+          group: DEFAULT_GROUP
+          refresh: true
+
+#swagger开关
+swagger2.enable: true

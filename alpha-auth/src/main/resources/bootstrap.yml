@@ -1,0 +1,22 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: alpha-oauth
+  cloud:
+    nacos:
+      discovery:
+        ip: v39.7996.com
+        server-addr: 192.168.1.134:8848
+      config:
+        server-addr: 192.168.1.134:8848
+        file-extension: yaml
+        group: DEFAULT_GROUP
+        shared-configs[0]:
+          data-id: common.yaml
+          group: DEFAULT_GROUP
+          refresh: true
+        shared-configs[1]:
+          data-id: config.yaml
+          group: DEFAULT_GROUP
+          refresh: true
