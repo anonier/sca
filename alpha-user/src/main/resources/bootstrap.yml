@@ -7,18 +7,18 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.1.134:8848
+        namespace: Dev
+        group: alpha
       config:
         server-addr: 192.168.1.134:8848
         file-extension: yaml
-        group: DEFAULT_GROUP
+        namespace: Dev
+        group: alpha
         shared-configs[0]:
           data-id: common.yaml
-          group: DEFAULT_GROUP
+          group: alpha
           refresh: true
         shared-configs[1]:
           data-id: config.yaml
-          group: DEFAULT_GROUP
+          group: alpha
           refresh: true
-
-#swagger开关
-swagger2.enable: true

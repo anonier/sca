@@ -2,12 +2,14 @@ package com.boredou.user.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
 
 @Data
+@Builder
 public class SysUser implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -18,25 +20,29 @@ public class SysUser implements Serializable {
 
     private String password;
 
-    private String salt;
-
     private String name;
 
-    private String userpic;
+    private String employeeId;
 
-    private String utype;
+    private String position;
 
-    private Date birthday;
+    private String department;
 
-    private String sex;
+    private String rank;
 
-    private String email;
+    private String roleId;
 
     private String phone;
 
+    private String email;
+
     private Integer qq;
 
-    private Integer status;
+    private Date entryTime;
+
+    private String company;
+
+    private String status;
 
     private Date createTime;
 

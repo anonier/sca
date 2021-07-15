@@ -85,11 +85,11 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
         if (swaggerEnable) {
-            http.authorizeRequests().antMatchers("/swagger-ui.html", "/v2/**", "/swagger-resources/**", "/webjars/**").permitAll();
+            http.authorizeRequests().antMatchers("/v2/**", "/swagger-resources/**", "/swagger-ui/**", "/webjars/**", "/doc.html/**", "/favicon.ico/**").permitAll();
         }
         //所有请求必须认证通过
         http.authorizeRequests()
-                .antMatchers("/user/bossLogin", "/user/userJwt").permitAll()
+                .antMatchers("/user/signIn", "/user/userJwt").permitAll()
                 .anyRequest().authenticated();
     }
 

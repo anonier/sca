@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.boredou.auth.entity.SysUser;
 import com.boredou.auth.entity.UserJwt;
 import com.boredou.auth.service.SysUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.List;
 
+@Slf4j
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -52,14 +54,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             List<String> user_permission = sysUserService.getSysUserPermission(sysUser.getId());
             //权限信息
             String user_permission_string = StringUtils.join(user_permission.toArray(), ",");
-            userDetails = new UserJwt(username,
-                    password,
-                    AuthorityUtils.commaSeparatedStringToAuthorityList(user_permission_string));
-            userDetails.setId(sysUser.getId());
-            userDetails.setUtype(sysUser.getUtype());//用户类型
-            userDetails.setCompany(sysUser.getCompany());//所属企业
-            userDetails.setName(sysUser.getName());//用户名称
-            userDetails.setUserpic(sysUser.getUserpic());//用户头像
+            userDetails = new UserJwt(sysUser.getId(), sysUser.getName(), sysUser.getEmployeeId()
+                    , sysUser.getPosition(), sysUser.getDepartment(), sysUser.getRank()
+                    , sysUser.getRoleId(), sysUser.getPhone(), sysUser.getEmail(), sysUser.getQq()
+                    , sysUser.getEntryTime(), sysUser.getCompany()
+                    , username, password, AuthorityUtils.commaSeparatedStringToAuthorityList(user_permission_string));
             return userDetails;
         }
         return null;

@@ -6,16 +6,19 @@ spring:
   cloud:
     nacos:
       discovery:
+        namespace: Dev
         server-addr: 192.168.1.134:8848
+        group: alpha
       config:
+        namespace: Dev
         server-addr: 192.168.1.134:8848
         file-extension: yaml
-        group: DEFAULT_GROUP
+        group: alpha
         shared-configs[0]:
           data-id: common.yaml
-          group: DEFAULT_GROUP
+          group: alpha
           refresh: true
         shared-configs[1]:
           data-id: config.yaml
-          group: DEFAULT_GROUP
+          group: alpha
           refresh: true

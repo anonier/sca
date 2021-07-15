@@ -2,21 +2,26 @@ package com.boredou.user.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.boredou.common.annotation.DetailLog;
+import com.boredou.common.config.SwaggerConfig;
 import com.boredou.common.entity.AuthToken;
-import com.boredou.common.entity.ResponseVO;
+import com.boredou.common.entity.Response;
 import com.boredou.common.enums.ResponseMsgEnum;
-import com.boredou.user.exception.BusiException;
+import com.boredou.user.model.dto.EditRoleDto;
 import com.boredou.user.model.dto.NewRoleDto;
 import com.boredou.user.model.dto.NewUserDto;
-import com.boredou.user.model.dto.SysUserDto;
 import com.boredou.user.model.entity.SysUser;
-import com.boredou.user.model.vo.BossLoginVo;
+import com.boredou.user.model.result.SignInResult;
+import com.boredou.user.model.vo.EditRoleVo;
 import com.boredou.user.model.vo.NewRoleVo;
 import com.boredou.user.model.vo.NewUserVo;
-import com.boredou.user.model.vo.SysUserVo;
-import com.boredou.user.service.UserService;
+import com.boredou.user.model.vo.SignInVo;
+import com.boredou.user.service.SysRoleService;
+import com.boredou.user.service.SysUserService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
@@ -26,83 +31,105 @@ import javax.annotation.Resource;
 
 @RestController
 @RequestMapping("user")
-@Api(tags = "用户模块", description = "用户相关模块接口")
+@Api(tags = SwaggerConfig.USER)
 public class UserCtrl {
 
     @Resource
-    private UserService userService;
+    private SysUserService sysUserService;
+    @Resource
+    private SysRoleService sysRoleService;
 
-    @PostMapping("bossLogin")
-    public ResponseVO pwdLogin(@Validated BossLoginVo vo) {
-        AuthToken authToken = userService.login(vo.getUsername(), vo.getPassword());
-        userService.saveCookie(authToken.getJwt_token());
-        return ResponseVO.success(authToken.getAccess_token());
+    @ApiOperation("登入")
+    @PostMapping("signIn")
+    public Response<SignInResult> signIn(@RequestBody @Validated @ApiParam(name = "登入对象", value = "json格式", required = true) SignInVo vo) {
+        AuthToken authToken = sysUserService.login(vo.getUsername(), vo.getPassword());
+        return Response.success(SignInResult.builder().accessToken(authToken.getJti()).jwtToken(authToken.getAccess_token()).build());
     }
 
+    @DetailLog
+    @ApiOperation("重置密码")
+    @PostMapping("resetPasswd")
+    public Response resetPasswd() {
+        sysUserService.resetPasswd();
+        return Response.success();
+    }
+
+    @ApiOperation("修改密码")
+    @PostMapping("modifyPasswd")
+    public Response<SignInResult> modifyPasswd(@ApiParam(name = "密码", value = "String", required = true) @RequestParam("password") String password) {
+        sysUserService.modifyPasswd(password);
+        return Response.success();
+    }
+
+    @ApiOperation("新建角色")
     @PostMapping("newRole")
-    public ResponseVO newRole(@RequestBody @Validated NewRoleVo vo) {
-        try {
-            userService.newRole(BeanUtil.copyProperties(vo, NewRoleDto.class));
-            return ResponseVO.success();
-        } catch (BusiException e) {
-            return ResponseVO.fail(e.getResultCode().getCode(), e.getMessage());
-        }
+    public Response newRole(@RequestBody @Validated @ApiParam(name = "添加角色对象", value = "json格式", required = true) NewRoleVo vo) {
+        sysRoleService.newRole(BeanUtil.copyProperties(vo, NewRoleDto.class));
+        return Response.success();
     }
 
-    //    @PreAuthorize("hasPermission('member_management')")
+    @ApiOperation("编辑角色权限")
+    @PostMapping("editRole")
+    public Response editRole(@RequestBody @Validated @ApiParam(name = "编辑角色对象", value = "json格式", required = true) EditRoleVo vo) {
+        sysRoleService.editRole(BeanUtil.copyProperties(vo, EditRoleDto.class));
+        return Response.success();
+    }
+
+    @DetailLog
+    @ApiOperation("禁用角色")
+    @PostMapping("banRole")
+    public Response banRole(@ApiParam(name = "角色id", value = "String", required = true) @RequestParam("id") String id) {
+        sysRoleService.banRole(id);
+        return Response.success();
+    }
+
+    @PreAuthorize("hasPermission('member_management')")
+    @ApiOperation("添加用户")
     @PostMapping("newUser")
-    public ResponseVO newUser(@RequestBody @Validated NewUserVo vo) {
-        try {
-            userService.newUser(BeanUtil.copyProperties(vo, NewUserDto.class));
-            return ResponseVO.success();
-        } catch (BusiException e) {
-            return ResponseVO.fail(e.getResultCode().getCode(), e.getMessage());
-        }
+    public Response newUser(@RequestBody @Validated @ApiParam(name = "添加用户对象", value = "json格式", required = true) NewUserVo vo) {
+        sysUserService.newUser(BeanUtil.copyProperties(vo, NewUserDto.class));
+        return Response.success();
     }
 
+    @ApiOperation("禁用用户")
+    @PostMapping("banUser")
+    public Response banUser(@ApiParam(name = "用户id", value = "String", required = true) @RequestParam("id") String id) {
+        sysUserService.banUser(id);
+        return Response.success();
+    }
+
+    @ApiOperation("获取jwtToken")
     @GetMapping("userJwt")
-    public ResponseVO userJwt() {
-        AuthToken userToken = userService.getUserToken(userService.getTokenFormCookie());
-        return ObjectUtil.isEmpty(userToken) ? ResponseVO.fail() : ResponseVO.success(userToken);
+    public Response userJwt() {
+        AuthToken userToken = sysUserService.getUserToken(sysUserService.getTokenFormCookie());
+        return ObjectUtil.isEmpty(userToken) ? Response.fail() : Response.success(userToken);
     }
 
-    @RequestMapping("/{id}")
-    public ResponseVO<SysUser> oneUser(@PathVariable("id") int id) {
-        SysUser user = userService.getUserById(id);
-        return user == null ? new ResponseVO<>(ResponseMsgEnum.USER_ILLEGAL) : ResponseVO.success(user);
+    @ApiOperation("获取用户信息")
+    @GetMapping("detail")
+    public Response getUser(@ApiParam(name = "用户id", value = "Integer", required = true) @RequestParam("id") Integer id) {
+        SysUser user = sysUserService.getUserById(id);
+        return ObjectUtil.isEmpty(user) ? new Response<>(ResponseMsgEnum.USER_ILLEGAL) : Response.success(user);
     }
 
-    @GetMapping("readOnly")
-    public ResponseVO getUser(@ApiParam(value = "用户ID", required = true) @RequestParam("id") int id) {
-        SysUser user = userService.getUserById(id);
-        return ObjectUtil.isEmpty(user) ? new ResponseVO<>(ResponseMsgEnum.USER_ILLEGAL) : ResponseVO.success(user);
-    }
-
-    @PostMapping("writeOnly")
-    public ResponseVO newSysUser(@ApiParam(value = "SysUserVo", required = true) @RequestBody @Validated SysUserVo sysUserVo) {
-        SysUserDto dto = BeanUtil.copyProperties(sysUserVo, SysUserDto.class);
-        return ResponseVO.success(userService.newSysUser(dto));
-    }
-
+    @ApiOperation("获取权限信息")
     @GetMapping("authorization")
     public Object authorization() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getAuthorities();
     }
 
+    @ApiOperation("退出")
     @PostMapping("logout")
-    public ResponseVO logout() {
-        //取出cookie中的用户身份令牌
-        String uid = userService.getTokenFormCookie();
-        //删除redis中的token
-        try {
-            userService.delToken(uid);
-        } catch (Exception e) {
-            return new ResponseVO<>(ResponseMsgEnum.FAILED);
-        }
-        //清除cookie
-        userService.clearCookie(uid);
-        return ResponseVO.success();
+    public Response logout() {
+        sysUserService.logout();
+        return Response.success();
+    }
+
+    @ApiOperation("最近动态")
+    @GetMapping("RecentDynamic")
+    public Response RecentDynamic() {
+        return Response.success(sysUserService.RecentDynamic());
     }
 
 //    @PostMapping("/add")

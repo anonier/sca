@@ -7,10 +7,8 @@
 //import org.springframework.context.annotation.Configuration;
 //
 ///**
-// * @program: springboot-nacos-demo
-// * @description:
-// * @author: syske
-// * @create: 2021-02-28 11:33
+// * @author: yb
+// * @create: 2021-05-28
 // */
 //@Configuration
 //@RefreshScope

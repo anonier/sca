@@ -9,29 +9,29 @@ import java.util.Date;
 public class NewUserDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String id;
-
     private String username;
 
     private String password;
 
-    private String salt;
-
     private String name;
 
-    private String userpic;
+    private String employeeId;
 
-    private String utype;
+    private String position;
 
-    private Date birthday;
+    private String department;
 
-    private String sex;
+    private String rank;
 
-    private String email;
+    private String roleId;
 
     private String phone;
 
+    private String email;
+
     private Integer qq;
+
+    private Date entryTime;
 
     private Integer status;
 

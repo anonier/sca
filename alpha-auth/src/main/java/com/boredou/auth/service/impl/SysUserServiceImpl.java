@@ -1,6 +1,6 @@
 package com.boredou.auth.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.boredou.auth.entity.SysUser;
 import com.boredou.auth.mapper.SysUserMapper;
@@ -24,9 +24,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public SysUser getSysUser(String username) {
-        QueryWrapper<SysUser> wrapper = new QueryWrapper<>();
-        wrapper.lambda().eq(SysUser::getUsername, username);
-        return this.getOne(wrapper);
+        return this.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername, username));
     }
 
     @Override

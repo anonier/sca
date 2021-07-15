@@ -1,10 +1,11 @@
 package com.boredou.user.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.boredou.user.mapper.CompanyMapper;
 import com.boredou.user.model.entity.Company;
 import com.boredou.user.model.entity.CompanyDept;
+import com.boredou.user.model.mapper.CompanyMapper;
 import com.boredou.user.service.CompanyDeptService;
 import com.boredou.user.service.CompanyService;
 import lombok.extern.slf4j.Slf4j;
@@ -30,10 +31,9 @@ public class CompanyServiceImpl extends ServiceImpl<CompanyMapper, Company> impl
     }
 
     @Override
+    @DS("read")
     public List<CompanyDept> getCoDeptById(int id) {
-        QueryWrapper<CompanyDept> wrapper = new QueryWrapper<>();
-        wrapper.lambda().eq(CompanyDept::getCompanyId, id);
-        return companyDeptService.list(wrapper);
+        return companyDeptService.list(new LambdaQueryWrapper<CompanyDept>().eq(CompanyDept::getCompanyId, id));
     }
 
 }

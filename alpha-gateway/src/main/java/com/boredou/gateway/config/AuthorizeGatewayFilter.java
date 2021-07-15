@@ -35,7 +35,7 @@ public class AuthorizeGatewayFilter implements GlobalFilter, Ordered {
             Authorization = exchange.getRequest().getHeaders().getFirst("Authorization");
         }
         if (exchange.getRequest().getCookies().containsKey(AUTHORIZE_UID)
-                && !exchange.getRequest().getPath().toString().contains("/bossLogin")
+                && !exchange.getRequest().getPath().toString().contains("/signIn")
                 && !exchange.getRequest().getPath().toString().contains("/oauth")) {
             String key = "user_token:" + exchange.getRequest().getCookies().getFirst("uid").getValue();
             //从redis中取到令牌信息

@@ -8,6 +8,7 @@ import com.alibaba.nacos.api.config.listener.Listener;
 import com.alibaba.nacos.api.exception.NacosException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
 import org.springframework.cloud.gateway.route.RouteDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinitionWriter;
@@ -20,18 +21,23 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Executor;
 
 @Slf4j
 @Component
+@RefreshScope
 public class DynamicRoutingConfig implements ApplicationEventPublisherAware {
 
-    @Value("${nacos.config.data-id}")
+    @Value("${nacos.gateway.route.config.data-id}")
     private String dataId;
-    @Value("${nacos.config.group}")
+    @Value("${spring.cloud.nacos.config.group}")
     private String group;
     @Value("${spring.cloud.nacos.config.server-addr}")
     private String serverAddr;
+    @Value("${spring.cloud.nacos.config.namespace}")
+    private String namespace;
+
 
     @Resource
     private RouteDefinitionWriter routeDefinitionWriter;
@@ -40,10 +46,12 @@ public class DynamicRoutingConfig implements ApplicationEventPublisherAware {
 
     private static final List<String> ROUTE_LIST = new ArrayList<>();
 
+    private ConfigService configService;
+
     @PostConstruct
     public void dynamicRouteByNacosListener() {
         try {
-            ConfigService configService = NacosFactory.createConfigService(serverAddr);
+            configService = initConfigService();
             configService.getConfig(dataId, group, 5000);
             parseRouteInfo(configService.getConfig(dataId, group, 5000));
             configService.addListener(dataId, group, new Listener() {
@@ -59,6 +67,18 @@ public class DynamicRoutingConfig implements ApplicationEventPublisherAware {
             });
         } catch (NacosException e) {
             e.printStackTrace();
+        }
+    }
+
+    private ConfigService initConfigService() {
+        try {
+            Properties properties = new Properties();
+            properties.setProperty("serverAddr", serverAddr);
+            properties.setProperty("namespace", namespace);
+            return configService = NacosFactory.createConfigService(properties);
+        } catch (Exception e) {
+            log.error("初始化网关路由时发生错误", e);
+            return null;
         }
     }
 

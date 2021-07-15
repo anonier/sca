@@ -1,0 +1,395 @@
+
+2021-07-15 16:17:54.936 [nacos-grpc-client-executor-10] [com.alibaba.nacos.common.remote.client] 
+ERROR: [1626338020697_192.168.1.196_61164]Request stream onCompleted, switch server
+
+2021-07-15 16:17:54.937 [nacos-grpc-client-executor-14] [com.alibaba.nacos.common.remote.client] 
+ERROR: [1626338015459_192.168.1.196_61157]Request stream onCompleted, switch server
+
+2021-07-15 16:17:54.946 [com.alibaba.nacos.client.naming.updater.0] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=ServiceQueryRequest{headers={}, requestId='null'}, retryTimes=0,errorMessage=java.util.concurrent.ExecutionException: com.alibaba.nacos.shaded.io.grpc.StatusRuntimeException: UNAVAILABLE: HTTP/2 error code: NO_ERROR
+Received Goaway
+app_requested
+
+2021-07-15 16:17:55.047 [com.alibaba.nacos.client.naming.updater.0] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=ServiceQueryRequest{headers={}, requestId='null'}, retryTimes=1,errorMessage=Client not connected,current status:UNHEALTHY
+
+2021-07-15 16:17:55.153 [com.alibaba.nacos.client.naming.updater.0] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=ServiceQueryRequest{headers={}, requestId='null'}, retryTimes=2,errorMessage=Client not connected,current status:SHUTDOWN
+
+2021-07-15 16:17:58.090 [com.alibaba.nacos.client.remote.worker] [com.alibaba.nacos.common.remote.client] 
+ERROR: [config-0-6a7ade13-e5d8-432d-afab-218e4d25445f]Fail to connect to server!,error={}
+java.util.concurrent.RejectedExecutionException: Task com.alibaba.nacos.shaded.io.grpc.internal.SerializingExecutor@2aa87e70 rejected from java.util.concurrent.ThreadPoolExecutor@4b2968cd[Terminated, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 19]
+	at java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2063)
+	at java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:830)
+	at java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1379)
+	at com.alibaba.nacos.shaded.io.grpc.internal.SerializingExecutor.schedule(SerializingExecutor.java:93)
+	at com.alibaba.nacos.shaded.io.grpc.internal.SerializingExecutor.execute(SerializingExecutor.java:86)
+	at com.alibaba.nacos.shaded.io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.closedInternal(ClientCallImpl.java:696)
+	at com.alibaba.nacos.shaded.io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.closed(ClientCallImpl.java:646)
+	at com.alibaba.nacos.shaded.io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.closed(ClientCallImpl.java:639)
+	at com.alibaba.nacos.shaded.io.grpc.internal.DelayedStream.cancel(DelayedStream.java:302)
+	at com.alibaba.nacos.shaded.io.grpc.internal.DelayedClientTransport$PendingStream.cancel(DelayedClientTransport.java:363)
+	at com.alibaba.nacos.shaded.io.grpc.internal.DelayedClientTransport.shutdownNow(DelayedClientTransport.java:241)
+	at com.alibaba.nacos.shaded.io.grpc.internal.ManagedChannelImpl$UncommittedRetriableStreamsRegistry.onShutdownNow(ManagedChannelImpl.java:1021)
+	at com.alibaba.nacos.shaded.io.grpc.internal.ManagedChannelImpl.shutdownNow(ManagedChannelImpl.java:752)
+	at com.alibaba.nacos.shaded.io.grpc.internal.ManagedChannelImpl.shutdownNow(ManagedChannelImpl.java:105)
+	at com.alibaba.nacos.shaded.io.grpc.internal.ForwardingManagedChannel.shutdownNow(ForwardingManagedChannel.java:52)
+	at com.alibaba.nacos.shaded.io.grpc.internal.ManagedChannelOrphanWrapper.shutdownNow(ManagedChannelOrphanWrapper.java:66)
+	at com.alibaba.nacos.common.remote.client.grpc.GrpcClient.shuntDownChannel(GrpcClient.java:123)
+	at com.alibaba.nacos.common.remote.client.grpc.GrpcClient.connectToServer(GrpcClient.java:263)
+	at com.alibaba.nacos.common.remote.client.RpcClient.reconnect(RpcClient.java:501)
+	at com.alibaba.nacos.common.remote.client.RpcClient$3.run(RpcClient.java:337)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run$$$capture(FutureTask.java:266)
+	at java.util.concurrent.FutureTask.run(FutureTask.java)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:180)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+2021-07-15 16:17:58.103 [com.alibaba.nacos.client.remote.worker] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=SubscribeServiceRequest{headers={}, requestId='null'}, retryTimes=0,errorMessage=java.util.concurrent.TimeoutException: Waited 3000 milliseconds (plus 5 milliseconds, 265300 nanoseconds delay) for com.alibaba.nacos.shaded.io.grpc.stub.ClientCalls$GrpcFuture@7763c45c[status=PENDING, info=[GrpcFuture{clientCall={delegate={delegate=ClientCallImpl{method=MethodDescriptor{fullMethodName=Request/request, type=UNARY, idempotent=false, safe=false, sampledToLocalTracing=true, requestMarshaller=com.alibaba.nacos.shaded.io.grpc.protobuf.lite.ProtoLiteUtils$MessageMarshaller@774acdbf, responseMarshaller=com.alibaba.nacos.shaded.io.grpc.protobuf.lite.ProtoLiteUtils$MessageMarshaller@22de2693, schemaDescriptor=com.alibaba.nacos.api.grpc.auto.RequestGrpc$RequestMethodDescriptorSupplier@5254e9b}}}}}]]
+
+2021-07-15 16:17:58.103 [com.alibaba.nacos.client.Worker] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=ConfigBatchListenRequest{headers={}, requestId='null'}, retryTimes=0,errorMessage=java.util.concurrent.TimeoutException: Waited 3000 milliseconds (plus 603400 nanoseconds delay) for com.alibaba.nacos.shaded.io.grpc.stub.ClientCalls$GrpcFuture@32175584[status=PENDING, info=[GrpcFuture{clientCall={delegate={delegate=ClientCallImpl{method=MethodDescriptor{fullMethodName=Request/request, type=UNARY, idempotent=false, safe=false, sampledToLocalTracing=true, requestMarshaller=com.alibaba.nacos.shaded.io.grpc.protobuf.lite.ProtoLiteUtils$MessageMarshaller@774acdbf, responseMarshaller=com.alibaba.nacos.shaded.io.grpc.protobuf.lite.ProtoLiteUtils$MessageMarshaller@22de2693, schemaDescriptor=com.alibaba.nacos.api.grpc.auto.RequestGrpc$RequestMethodDescriptorSupplier@5254e9b}}}}}]]
+
+2021-07-15 16:17:58.103 [com.alibaba.nacos.client.remote.worker] [com.alibaba.nacos.common.remote.client] 
+ERROR: [f6659f7f-3be0-4c3d-84a6-659b453811c8]Fail to connect to server!,error={}
+java.util.concurrent.RejectedExecutionException: Task com.alibaba.nacos.shaded.io.grpc.internal.SerializingExecutor@5025b4f7 rejected from java.util.concurrent.ThreadPoolExecutor@4a30b5f5[Terminated, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 16]
+	at java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2063)
+	at java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:830)
+	at java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1379)
+	at com.alibaba.nacos.shaded.io.grpc.internal.SerializingExecutor.schedule(SerializingExecutor.java:93)
+	at com.alibaba.nacos.shaded.io.grpc.internal.SerializingExecutor.execute(SerializingExecutor.java:86)
+	at com.alibaba.nacos.shaded.io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.closedInternal(ClientCallImpl.java:696)
+	at com.alibaba.nacos.shaded.io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.closed(ClientCallImpl.java:646)
+	at com.alibaba.nacos.shaded.io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.closed(ClientCallImpl.java:639)
+	at com.alibaba.nacos.shaded.io.grpc.internal.DelayedStream.cancel(DelayedStream.java:302)
+	at com.alibaba.nacos.shaded.io.grpc.internal.DelayedClientTransport$PendingStream.cancel(DelayedClientTransport.java:363)
+	at com.alibaba.nacos.shaded.io.grpc.internal.DelayedClientTransport.shutdownNow(DelayedClientTransport.java:241)
+	at com.alibaba.nacos.shaded.io.grpc.internal.ManagedChannelImpl$UncommittedRetriableStreamsRegistry.onShutdownNow(ManagedChannelImpl.java:1021)
+	at com.alibaba.nacos.shaded.io.grpc.internal.ManagedChannelImpl.shutdownNow(ManagedChannelImpl.java:752)
+	at com.alibaba.nacos.shaded.io.grpc.internal.ManagedChannelImpl.shutdownNow(ManagedChannelImpl.java:105)
+	at com.alibaba.nacos.shaded.io.grpc.internal.ForwardingManagedChannel.shutdownNow(ForwardingManagedChannel.java:52)
+	at com.alibaba.nacos.shaded.io.grpc.internal.ManagedChannelOrphanWrapper.shutdownNow(ManagedChannelOrphanWrapper.java:66)
+	at com.alibaba.nacos.common.remote.client.grpc.GrpcClient.shuntDownChannel(GrpcClient.java:123)
+	at com.alibaba.nacos.common.remote.client.grpc.GrpcClient.connectToServer(GrpcClient.java:263)
+	at com.alibaba.nacos.common.remote.client.RpcClient.reconnect(RpcClient.java:501)
+	at com.alibaba.nacos.common.remote.client.RpcClient$3.run(RpcClient.java:337)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run$$$capture(FutureTask.java:266)
+	at java.util.concurrent.FutureTask.run(FutureTask.java)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:180)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+2021-07-15 16:17:58.104 [com.alibaba.nacos.client.Worker] [com.alibaba.nacos.client.config.impl.ClientWorker] 
+ERROR: Async listen config change error 
+com.alibaba.nacos.api.exception.NacosException: java.util.concurrent.TimeoutException: Waited 3000 milliseconds (plus 603400 nanoseconds delay) for com.alibaba.nacos.shaded.io.grpc.stub.ClientCalls$GrpcFuture@32175584[status=PENDING, info=[GrpcFuture{clientCall={delegate={delegate=ClientCallImpl{method=MethodDescriptor{fullMethodName=Request/request, type=UNARY, idempotent=false, safe=false, sampledToLocalTracing=true, requestMarshaller=com.alibaba.nacos.shaded.io.grpc.protobuf.lite.ProtoLiteUtils$MessageMarshaller@774acdbf, responseMarshaller=com.alibaba.nacos.shaded.io.grpc.protobuf.lite.ProtoLiteUtils$MessageMarshaller@22de2693, schemaDescriptor=com.alibaba.nacos.api.grpc.auto.RequestGrpc$RequestMethodDescriptorSupplier@5254e9b}}}}}]]
+	at com.alibaba.nacos.common.remote.client.grpc.GrpcConnection.request(GrpcConnection.java:78)
+	at com.alibaba.nacos.common.remote.client.RpcClient.request(RpcClient.java:630)
+	at com.alibaba.nacos.client.config.impl.ClientWorker$ConfigRpcTransportClient.requestProxy(ClientWorker.java:976)
+	at com.alibaba.nacos.client.config.impl.ClientWorker$ConfigRpcTransportClient.requestProxy(ClientWorker.java:951)
+	at com.alibaba.nacos.client.config.impl.ClientWorker$ConfigRpcTransportClient.executeConfigListen(ClientWorker.java:757)
+	at com.alibaba.nacos.client.config.impl.ClientWorker$ConfigRpcTransportClient$3.run(ClientWorker.java:677)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run$$$capture(FutureTask.java:266)
+	at java.util.concurrent.FutureTask.run(FutureTask.java)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:180)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: java.util.concurrent.TimeoutException: Waited 3000 milliseconds (plus 603400 nanoseconds delay) for com.alibaba.nacos.shaded.io.grpc.stub.ClientCalls$GrpcFuture@32175584[status=PENDING, info=[GrpcFuture{clientCall={delegate={delegate=ClientCallImpl{method=MethodDescriptor{fullMethodName=Request/request, type=UNARY, idempotent=false, safe=false, sampledToLocalTracing=true, requestMarshaller=com.alibaba.nacos.shaded.io.grpc.protobuf.lite.ProtoLiteUtils$MessageMarshaller@774acdbf, responseMarshaller=com.alibaba.nacos.shaded.io.grpc.protobuf.lite.ProtoLiteUtils$MessageMarshaller@22de2693, schemaDescriptor=com.alibaba.nacos.api.grpc.auto.RequestGrpc$RequestMethodDescriptorSupplier@5254e9b}}}}}]]
+	at com.alibaba.nacos.shaded.com.google.common.util.concurrent.AbstractFuture.get(AbstractFuture.java:508)
+	at com.alibaba.nacos.common.remote.client.grpc.GrpcConnection.request(GrpcConnection.java:76)
+	... 13 common frames omitted
+
+2021-07-15 16:17:58.149 [SpringApplicationShutdownHook] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=SubscribeServiceRequest{headers={}, requestId='null'}, retryTimes=0,errorMessage=java.util.concurrent.TimeoutException: Waited 3000 milliseconds (plus 3 milliseconds, 738300 nanoseconds delay) for com.alibaba.nacos.shaded.io.grpc.stub.ClientCalls$GrpcFuture@4d0e791e[status=PENDING, info=[GrpcFuture{clientCall={delegate={delegate=ClientCallImpl{method=MethodDescriptor{fullMethodName=Request/request, type=UNARY, idempotent=false, safe=false, sampledToLocalTracing=true, requestMarshaller=com.alibaba.nacos.shaded.io.grpc.protobuf.lite.ProtoLiteUtils$MessageMarshaller@774acdbf, responseMarshaller=com.alibaba.nacos.shaded.io.grpc.protobuf.lite.ProtoLiteUtils$MessageMarshaller@22de2693, schemaDescriptor=com.alibaba.nacos.api.grpc.auto.RequestGrpc$RequestMethodDescriptorSupplier@5254e9b}}}}}]]
+
+2021-07-15 16:17:58.150 [SpringApplicationShutdownHook] [com.alibaba.cloud.nacos.discovery.NacosWatch] 
+ERROR: namingService unsubscribe failed, properties:NacosDiscoveryProperties{serverAddr='192.168.1.134:8848', endpoint='', namespace='Dev', watchDelay=30000, logName='', service='alpha-user', weight=1.0, clusterName='DEFAULT', group='alpha', namingLoadCacheAtStart='false', metadata={preserved.register.source=SPRING_CLOUD}, registerEnabled=true, ip='192.168.1.196', networkInterface='', port=8071, secure=false, accessKey='', secretKey='', heartBeatInterval=null, heartBeatTimeout=null, ipDeleteTimeout=null}
+com.alibaba.nacos.api.exception.NacosException: Request nacos server failed: 
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.requestToServer(NamingGrpcClientProxy.java:213)
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.unsubscribe(NamingGrpcClientProxy.java:182)
+	at com.alibaba.nacos.client.naming.remote.NamingClientProxyDelegate.unsubscribe(NamingClientProxyDelegate.java:156)
+	at com.alibaba.nacos.client.naming.NacosNamingService.unsubscribe(NacosNamingService.java:411)
+	at com.alibaba.cloud.nacos.discovery.NacosWatch.stop(NacosWatch.java:166)
+	at com.alibaba.cloud.nacos.discovery.NacosWatch.stop(NacosWatch.java:97)
+	at org.springframework.context.support.DefaultLifecycleProcessor.doStop(DefaultLifecycleProcessor.java:234)
+	at org.springframework.context.support.DefaultLifecycleProcessor.access$300(DefaultLifecycleProcessor.java:54)
+	at org.springframework.context.support.DefaultLifecycleProcessor$LifecycleGroup.stop(DefaultLifecycleProcessor.java:373)
+	at org.springframework.context.support.DefaultLifecycleProcessor.stopBeans(DefaultLifecycleProcessor.java:206)
+	at org.springframework.context.support.DefaultLifecycleProcessor.onClose(DefaultLifecycleProcessor.java:129)
+	at org.springframework.context.support.AbstractApplicationContext.doClose(AbstractApplicationContext.java:1067)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.doClose(ServletWebServerApplicationContext.java:172)
+	at org.springframework.context.support.AbstractApplicationContext.close(AbstractApplicationContext.java:1021)
+	at org.springframework.boot.SpringApplicationShutdownHook.closeAndWait(SpringApplicationShutdownHook.java:131)
+	at java.lang.Iterable.forEach(Iterable.java:75)
+	at org.springframework.boot.SpringApplicationShutdownHook.run(SpringApplicationShutdownHook.java:100)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: com.alibaba.nacos.api.exception.NacosException: java.util.concurrent.TimeoutException: Waited 3000 milliseconds (plus 3 milliseconds, 738300 nanoseconds delay) for com.alibaba.nacos.shaded.io.grpc.stub.ClientCalls$GrpcFuture@4d0e791e[status=PENDING, info=[GrpcFuture{clientCall={delegate={delegate=ClientCallImpl{method=MethodDescriptor{fullMethodName=Request/request, type=UNARY, idempotent=false, safe=false, sampledToLocalTracing=true, requestMarshaller=com.alibaba.nacos.shaded.io.grpc.protobuf.lite.ProtoLiteUtils$MessageMarshaller@774acdbf, responseMarshaller=com.alibaba.nacos.shaded.io.grpc.protobuf.lite.ProtoLiteUtils$MessageMarshaller@22de2693, schemaDescriptor=com.alibaba.nacos.api.grpc.auto.RequestGrpc$RequestMethodDescriptorSupplier@5254e9b}}}}}]]
+	at com.alibaba.nacos.common.remote.client.grpc.GrpcConnection.request(GrpcConnection.java:78)
+	at com.alibaba.nacos.common.remote.client.RpcClient.request(RpcClient.java:630)
+	at com.alibaba.nacos.common.remote.client.RpcClient.request(RpcClient.java:608)
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.requestToServer(NamingGrpcClientProxy.java:203)
+	... 17 common frames omitted
+Caused by: java.util.concurrent.TimeoutException: Waited 3000 milliseconds (plus 3 milliseconds, 738300 nanoseconds delay) for com.alibaba.nacos.shaded.io.grpc.stub.ClientCalls$GrpcFuture@4d0e791e[status=PENDING, info=[GrpcFuture{clientCall={delegate={delegate=ClientCallImpl{method=MethodDescriptor{fullMethodName=Request/request, type=UNARY, idempotent=false, safe=false, sampledToLocalTracing=true, requestMarshaller=com.alibaba.nacos.shaded.io.grpc.protobuf.lite.ProtoLiteUtils$MessageMarshaller@774acdbf, responseMarshaller=com.alibaba.nacos.shaded.io.grpc.protobuf.lite.ProtoLiteUtils$MessageMarshaller@22de2693, schemaDescriptor=com.alibaba.nacos.api.grpc.auto.RequestGrpc$RequestMethodDescriptorSupplier@5254e9b}}}}}]]
+	at com.alibaba.nacos.shaded.com.google.common.util.concurrent.AbstractFuture.get(AbstractFuture.java:508)
+	at com.alibaba.nacos.common.remote.client.grpc.GrpcConnection.request(GrpcConnection.java:76)
+	... 20 common frames omitted
+
+2021-07-15 16:17:58.212 [com.alibaba.nacos.client.remote.worker] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=InstanceRequest{headers={app=unknown}, requestId='null'}, retryTimes=0,errorMessage=Client not connected,current status:UNHEALTHY
+
+2021-07-15 16:17:58.259 [SpringApplicationShutdownHook] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=InstanceRequest{headers={app=unknown}, requestId='null'}, retryTimes=0,errorMessage=Client not connected,current status:UNHEALTHY
+
+2021-07-15 16:17:58.321 [com.alibaba.nacos.client.remote.worker] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=InstanceRequest{headers={app=unknown}, requestId='null'}, retryTimes=1,errorMessage=Client not connected,current status:UNHEALTHY
+
+2021-07-15 16:17:58.373 [SpringApplicationShutdownHook] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=InstanceRequest{headers={app=unknown}, requestId='null'}, retryTimes=1,errorMessage=Client not connected,current status:UNHEALTHY
+
+2021-07-15 16:17:58.422 [com.alibaba.nacos.client.remote.worker] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=InstanceRequest{headers={app=unknown}, requestId='null'}, retryTimes=2,errorMessage=Client not connected,current status:UNHEALTHY
+
+2021-07-15 16:17:58.475 [SpringApplicationShutdownHook] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=InstanceRequest{headers={app=unknown}, requestId='null'}, retryTimes=2,errorMessage=Client not connected,current status:UNHEALTHY
+
+2021-07-15 16:17:58.475 [SpringApplicationShutdownHook] [c.a.cloud.nacos.registry.NacosServiceRegistry] 
+ERROR: ERR_NACOS_DEREGISTER, de-register failed...NacosRegistration{nacosDiscoveryProperties=NacosDiscoveryProperties{serverAddr='192.168.1.134:8848', endpoint='', namespace='Dev', watchDelay=30000, logName='', service='alpha-user', weight=1.0, clusterName='DEFAULT', group='alpha', namingLoadCacheAtStart='false', metadata={preserved.register.source=SPRING_CLOUD}, registerEnabled=true, ip='192.168.1.196', networkInterface='', port=8071, secure=false, accessKey='', secretKey='', heartBeatInterval=null, heartBeatTimeout=null, ipDeleteTimeout=null}},
+com.alibaba.nacos.api.exception.NacosException: Request nacos server failed: 
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.requestToServer(NamingGrpcClientProxy.java:213)
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.deregisterService(NamingGrpcClientProxy.java:112)
+	at com.alibaba.nacos.client.naming.remote.NamingClientProxyDelegate.deregisterService(NamingClientProxyDelegate.java:100)
+	at com.alibaba.nacos.client.naming.NacosNamingService.deregisterInstance(NacosNamingService.java:174)
+	at com.alibaba.nacos.client.naming.NacosNamingService.deregisterInstance(NacosNamingService.java:164)
+	at com.alibaba.cloud.nacos.registry.NacosServiceRegistry.deregister(NacosServiceRegistry.java:102)
+	at org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration.deregister(AbstractAutoServiceRegistration.java:249)
+	at org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration.stop(AbstractAutoServiceRegistration.java:264)
+	at org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration.destroy(AbstractAutoServiceRegistration.java:201)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleElement.invoke(InitDestroyAnnotationBeanPostProcessor.java:389)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeDestroyMethods(InitDestroyAnnotationBeanPostProcessor.java:347)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeDestruction(InitDestroyAnnotationBeanPostProcessor.java:177)
+	at org.springframework.beans.factory.support.DisposableBeanAdapter.destroy(DisposableBeanAdapter.java:184)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroyBean(DefaultSingletonBeanRegistry.java:587)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroySingleton(DefaultSingletonBeanRegistry.java:559)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.destroySingleton(DefaultListableBeanFactory.java:1152)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroySingletons(DefaultSingletonBeanRegistry.java:520)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.destroySingletons(DefaultListableBeanFactory.java:1145)
+	at org.springframework.context.support.AbstractApplicationContext.destroyBeans(AbstractApplicationContext.java:1106)
+	at org.springframework.context.support.AbstractApplicationContext.doClose(AbstractApplicationContext.java:1075)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.doClose(ServletWebServerApplicationContext.java:172)
+	at org.springframework.context.support.AbstractApplicationContext.close(AbstractApplicationContext.java:1021)
+	at org.springframework.boot.SpringApplicationShutdownHook.closeAndWait(SpringApplicationShutdownHook.java:131)
+	at java.lang.Iterable.forEach(Iterable.java:75)
+	at org.springframework.boot.SpringApplicationShutdownHook.run(SpringApplicationShutdownHook.java:100)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: com.alibaba.nacos.api.exception.NacosException: Client not connected,current status:UNHEALTHY
+	at com.alibaba.nacos.common.remote.client.RpcClient.request(RpcClient.java:628)
+	at com.alibaba.nacos.common.remote.client.RpcClient.request(RpcClient.java:608)
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.requestToServer(NamingGrpcClientProxy.java:203)
+	... 29 common frames omitted
+
+2021-07-15 16:29:08.325 [SpringApplicationShutdownHook] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=SubscribeServiceRequest{headers={app=unknown}, requestId='null'}, retryTimes=0,errorMessage=Client not connected,current status:SHUTDOWN
+
+2021-07-15 16:29:08.502 [SpringApplicationShutdownHook] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=SubscribeServiceRequest{headers={app=unknown}, requestId='null'}, retryTimes=1,errorMessage=Client not connected,current status:SHUTDOWN
+
+2021-07-15 16:29:08.622 [SpringApplicationShutdownHook] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=SubscribeServiceRequest{headers={app=unknown}, requestId='null'}, retryTimes=2,errorMessage=Client not connected,current status:SHUTDOWN
+
+2021-07-15 16:29:08.622 [SpringApplicationShutdownHook] [com.alibaba.cloud.nacos.discovery.NacosWatch] 
+ERROR: namingService unsubscribe failed, properties:NacosDiscoveryProperties{serverAddr='192.168.1.134:8848', endpoint='', namespace='Dev', watchDelay=30000, logName='', service='alpha-user', weight=1.0, clusterName='DEFAULT', group='alpha', namingLoadCacheAtStart='false', metadata={preserved.register.source=SPRING_CLOUD}, registerEnabled=true, ip='192.168.1.196', networkInterface='', port=8071, secure=false, accessKey='', secretKey='', heartBeatInterval=null, heartBeatTimeout=null, ipDeleteTimeout=null}
+com.alibaba.nacos.api.exception.NacosException: Request nacos server failed: 
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.requestToServer(NamingGrpcClientProxy.java:213)
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.unsubscribe(NamingGrpcClientProxy.java:182)
+	at com.alibaba.nacos.client.naming.remote.NamingClientProxyDelegate.unsubscribe(NamingClientProxyDelegate.java:156)
+	at com.alibaba.nacos.client.naming.NacosNamingService.unsubscribe(NacosNamingService.java:411)
+	at com.alibaba.cloud.nacos.discovery.NacosWatch.stop(NacosWatch.java:166)
+	at com.alibaba.cloud.nacos.discovery.NacosWatch.stop(NacosWatch.java:97)
+	at org.springframework.context.support.DefaultLifecycleProcessor.doStop(DefaultLifecycleProcessor.java:234)
+	at org.springframework.context.support.DefaultLifecycleProcessor.access$300(DefaultLifecycleProcessor.java:54)
+	at org.springframework.context.support.DefaultLifecycleProcessor$LifecycleGroup.stop(DefaultLifecycleProcessor.java:373)
+	at org.springframework.context.support.DefaultLifecycleProcessor.stopBeans(DefaultLifecycleProcessor.java:206)
+	at org.springframework.context.support.DefaultLifecycleProcessor.onClose(DefaultLifecycleProcessor.java:129)
+	at org.springframework.context.support.AbstractApplicationContext.doClose(AbstractApplicationContext.java:1067)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.doClose(ServletWebServerApplicationContext.java:172)
+	at org.springframework.context.support.AbstractApplicationContext.close(AbstractApplicationContext.java:1021)
+	at org.springframework.boot.SpringApplicationShutdownHook.closeAndWait(SpringApplicationShutdownHook.java:131)
+	at java.lang.Iterable.forEach(Iterable.java:75)
+	at org.springframework.boot.SpringApplicationShutdownHook.run(SpringApplicationShutdownHook.java:100)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: com.alibaba.nacos.api.exception.NacosException: Client not connected,current status:SHUTDOWN
+	at com.alibaba.nacos.common.remote.client.RpcClient.request(RpcClient.java:628)
+	at com.alibaba.nacos.common.remote.client.RpcClient.request(RpcClient.java:608)
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.requestToServer(NamingGrpcClientProxy.java:203)
+	... 17 common frames omitted
+
+2021-07-15 16:29:08.743 [SpringApplicationShutdownHook] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=InstanceRequest{headers={app=unknown}, requestId='null'}, retryTimes=0,errorMessage=Client not connected,current status:SHUTDOWN
+
+2021-07-15 16:29:08.852 [SpringApplicationShutdownHook] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=InstanceRequest{headers={app=unknown}, requestId='null'}, retryTimes=1,errorMessage=Client not connected,current status:SHUTDOWN
+
+2021-07-15 16:29:08.958 [SpringApplicationShutdownHook] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=InstanceRequest{headers={app=unknown}, requestId='null'}, retryTimes=2,errorMessage=Client not connected,current status:SHUTDOWN
+
+2021-07-15 16:29:08.959 [SpringApplicationShutdownHook] [c.a.cloud.nacos.registry.NacosServiceRegistry] 
+ERROR: ERR_NACOS_DEREGISTER, de-register failed...NacosRegistration{nacosDiscoveryProperties=NacosDiscoveryProperties{serverAddr='192.168.1.134:8848', endpoint='', namespace='Dev', watchDelay=30000, logName='', service='alpha-user', weight=1.0, clusterName='DEFAULT', group='alpha', namingLoadCacheAtStart='false', metadata={preserved.register.source=SPRING_CLOUD}, registerEnabled=true, ip='192.168.1.196', networkInterface='', port=8071, secure=false, accessKey='', secretKey='', heartBeatInterval=null, heartBeatTimeout=null, ipDeleteTimeout=null}},
+com.alibaba.nacos.api.exception.NacosException: Request nacos server failed: 
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.requestToServer(NamingGrpcClientProxy.java:213)
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.deregisterService(NamingGrpcClientProxy.java:112)
+	at com.alibaba.nacos.client.naming.remote.NamingClientProxyDelegate.deregisterService(NamingClientProxyDelegate.java:100)
+	at com.alibaba.nacos.client.naming.NacosNamingService.deregisterInstance(NacosNamingService.java:174)
+	at com.alibaba.nacos.client.naming.NacosNamingService.deregisterInstance(NacosNamingService.java:164)
+	at com.alibaba.cloud.nacos.registry.NacosServiceRegistry.deregister(NacosServiceRegistry.java:102)
+	at org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration.deregister(AbstractAutoServiceRegistration.java:249)
+	at org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration.stop(AbstractAutoServiceRegistration.java:264)
+	at org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration.destroy(AbstractAutoServiceRegistration.java:201)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleElement.invoke(InitDestroyAnnotationBeanPostProcessor.java:389)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeDestroyMethods(InitDestroyAnnotationBeanPostProcessor.java:347)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeDestruction(InitDestroyAnnotationBeanPostProcessor.java:177)
+	at org.springframework.beans.factory.support.DisposableBeanAdapter.destroy(DisposableBeanAdapter.java:184)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroyBean(DefaultSingletonBeanRegistry.java:587)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroySingleton(DefaultSingletonBeanRegistry.java:559)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.destroySingleton(DefaultListableBeanFactory.java:1152)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroySingletons(DefaultSingletonBeanRegistry.java:520)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.destroySingletons(DefaultListableBeanFactory.java:1145)
+	at org.springframework.context.support.AbstractApplicationContext.destroyBeans(AbstractApplicationContext.java:1106)
+	at org.springframework.context.support.AbstractApplicationContext.doClose(AbstractApplicationContext.java:1075)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.doClose(ServletWebServerApplicationContext.java:172)
+	at org.springframework.context.support.AbstractApplicationContext.close(AbstractApplicationContext.java:1021)
+	at org.springframework.boot.SpringApplicationShutdownHook.closeAndWait(SpringApplicationShutdownHook.java:131)
+	at java.lang.Iterable.forEach(Iterable.java:75)
+	at org.springframework.boot.SpringApplicationShutdownHook.run(SpringApplicationShutdownHook.java:100)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: com.alibaba.nacos.api.exception.NacosException: Client not connected,current status:SHUTDOWN
+	at com.alibaba.nacos.common.remote.client.RpcClient.request(RpcClient.java:628)
+	at com.alibaba.nacos.common.remote.client.RpcClient.request(RpcClient.java:608)
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.requestToServer(NamingGrpcClientProxy.java:203)
+	... 29 common frames omitted
+
+2021-07-15 16:46:36.978 [SpringApplicationShutdownHook] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=SubscribeServiceRequest{headers={app=unknown}, requestId='null'}, retryTimes=0,errorMessage=Client not connected,current status:SHUTDOWN
+
+2021-07-15 16:46:37.179 [SpringApplicationShutdownHook] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=SubscribeServiceRequest{headers={app=unknown}, requestId='null'}, retryTimes=1,errorMessage=Client not connected,current status:SHUTDOWN
+
+2021-07-15 16:46:37.281 [SpringApplicationShutdownHook] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=SubscribeServiceRequest{headers={app=unknown}, requestId='null'}, retryTimes=2,errorMessage=Client not connected,current status:SHUTDOWN
+
+2021-07-15 16:46:37.282 [SpringApplicationShutdownHook] [com.alibaba.cloud.nacos.discovery.NacosWatch] 
+ERROR: namingService unsubscribe failed, properties:NacosDiscoveryProperties{serverAddr='192.168.1.134:8848', endpoint='', namespace='Dev', watchDelay=30000, logName='', service='alpha-user', weight=1.0, clusterName='DEFAULT', group='alpha', namingLoadCacheAtStart='false', metadata={preserved.register.source=SPRING_CLOUD}, registerEnabled=true, ip='192.168.1.196', networkInterface='', port=8071, secure=false, accessKey='', secretKey='', heartBeatInterval=null, heartBeatTimeout=null, ipDeleteTimeout=null}
+com.alibaba.nacos.api.exception.NacosException: Request nacos server failed: 
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.requestToServer(NamingGrpcClientProxy.java:213)
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.unsubscribe(NamingGrpcClientProxy.java:182)
+	at com.alibaba.nacos.client.naming.remote.NamingClientProxyDelegate.unsubscribe(NamingClientProxyDelegate.java:156)
+	at com.alibaba.nacos.client.naming.NacosNamingService.unsubscribe(NacosNamingService.java:411)
+	at com.alibaba.cloud.nacos.discovery.NacosWatch.stop(NacosWatch.java:166)
+	at com.alibaba.cloud.nacos.discovery.NacosWatch.stop(NacosWatch.java:97)
+	at org.springframework.context.support.DefaultLifecycleProcessor.doStop(DefaultLifecycleProcessor.java:234)
+	at org.springframework.context.support.DefaultLifecycleProcessor.access$300(DefaultLifecycleProcessor.java:54)
+	at org.springframework.context.support.DefaultLifecycleProcessor$LifecycleGroup.stop(DefaultLifecycleProcessor.java:373)
+	at org.springframework.context.support.DefaultLifecycleProcessor.stopBeans(DefaultLifecycleProcessor.java:206)
+	at org.springframework.context.support.DefaultLifecycleProcessor.onClose(DefaultLifecycleProcessor.java:129)
+	at org.springframework.context.support.AbstractApplicationContext.doClose(AbstractApplicationContext.java:1067)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.doClose(ServletWebServerApplicationContext.java:172)
+	at org.springframework.context.support.AbstractApplicationContext.close(AbstractApplicationContext.java:1021)
+	at org.springframework.boot.SpringApplicationShutdownHook.closeAndWait(SpringApplicationShutdownHook.java:131)
+	at java.lang.Iterable.forEach(Iterable.java:75)
+	at org.springframework.boot.SpringApplicationShutdownHook.run(SpringApplicationShutdownHook.java:100)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: com.alibaba.nacos.api.exception.NacosException: Client not connected,current status:SHUTDOWN
+	at com.alibaba.nacos.common.remote.client.RpcClient.request(RpcClient.java:628)
+	at com.alibaba.nacos.common.remote.client.RpcClient.request(RpcClient.java:608)
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.requestToServer(NamingGrpcClientProxy.java:203)
+	... 17 common frames omitted
+
+2021-07-15 16:46:37.401 [SpringApplicationShutdownHook] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=InstanceRequest{headers={app=unknown}, requestId='null'}, retryTimes=0,errorMessage=Client not connected,current status:SHUTDOWN
+
+2021-07-15 16:46:37.509 [SpringApplicationShutdownHook] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=InstanceRequest{headers={app=unknown}, requestId='null'}, retryTimes=1,errorMessage=Client not connected,current status:SHUTDOWN
+
+2021-07-15 16:46:37.616 [SpringApplicationShutdownHook] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=InstanceRequest{headers={app=unknown}, requestId='null'}, retryTimes=2,errorMessage=Client not connected,current status:SHUTDOWN
+
+2021-07-15 16:46:37.616 [SpringApplicationShutdownHook] [c.a.cloud.nacos.registry.NacosServiceRegistry] 
+ERROR: ERR_NACOS_DEREGISTER, de-register failed...NacosRegistration{nacosDiscoveryProperties=NacosDiscoveryProperties{serverAddr='192.168.1.134:8848', endpoint='', namespace='Dev', watchDelay=30000, logName='', service='alpha-user', weight=1.0, clusterName='DEFAULT', group='alpha', namingLoadCacheAtStart='false', metadata={preserved.register.source=SPRING_CLOUD}, registerEnabled=true, ip='192.168.1.196', networkInterface='', port=8071, secure=false, accessKey='', secretKey='', heartBeatInterval=null, heartBeatTimeout=null, ipDeleteTimeout=null}},
+com.alibaba.nacos.api.exception.NacosException: Request nacos server failed: 
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.requestToServer(NamingGrpcClientProxy.java:213)
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.deregisterService(NamingGrpcClientProxy.java:112)
+	at com.alibaba.nacos.client.naming.remote.NamingClientProxyDelegate.deregisterService(NamingClientProxyDelegate.java:100)
+	at com.alibaba.nacos.client.naming.NacosNamingService.deregisterInstance(NacosNamingService.java:174)
+	at com.alibaba.nacos.client.naming.NacosNamingService.deregisterInstance(NacosNamingService.java:164)
+	at com.alibaba.cloud.nacos.registry.NacosServiceRegistry.deregister(NacosServiceRegistry.java:102)
+	at org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration.deregister(AbstractAutoServiceRegistration.java:249)
+	at org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration.stop(AbstractAutoServiceRegistration.java:264)
+	at org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration.destroy(AbstractAutoServiceRegistration.java:201)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleElement.invoke(InitDestroyAnnotationBeanPostProcessor.java:389)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeDestroyMethods(InitDestroyAnnotationBeanPostProcessor.java:347)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeDestruction(InitDestroyAnnotationBeanPostProcessor.java:177)
+	at org.springframework.beans.factory.support.DisposableBeanAdapter.destroy(DisposableBeanAdapter.java:184)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroyBean(DefaultSingletonBeanRegistry.java:587)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroySingleton(DefaultSingletonBeanRegistry.java:559)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.destroySingleton(DefaultListableBeanFactory.java:1152)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroySingletons(DefaultSingletonBeanRegistry.java:520)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.destroySingletons(DefaultListableBeanFactory.java:1145)
+	at org.springframework.context.support.AbstractApplicationContext.destroyBeans(AbstractApplicationContext.java:1106)
+	at org.springframework.context.support.AbstractApplicationContext.doClose(AbstractApplicationContext.java:1075)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.doClose(ServletWebServerApplicationContext.java:172)
+	at org.springframework.context.support.AbstractApplicationContext.close(AbstractApplicationContext.java:1021)
+	at org.springframework.boot.SpringApplicationShutdownHook.closeAndWait(SpringApplicationShutdownHook.java:131)
+	at java.lang.Iterable.forEach(Iterable.java:75)
+	at org.springframework.boot.SpringApplicationShutdownHook.run(SpringApplicationShutdownHook.java:100)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: com.alibaba.nacos.api.exception.NacosException: Client not connected,current status:SHUTDOWN
+	at com.alibaba.nacos.common.remote.client.RpcClient.request(RpcClient.java:628)
+	at com.alibaba.nacos.common.remote.client.RpcClient.request(RpcClient.java:608)
+	at com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy.requestToServer(NamingGrpcClientProxy.java:203)
+	... 29 common frames omitted
+
+2021-07-15 16:46:37.711 [com.alibaba.nacos.client.Worker] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=ConfigBatchListenRequest{headers={Client-AppName=unknown, Client-RequestTS=1626338797601, charset=UTF-8, Client-RequestToken=3e1e66a6b3acd72c438a509cb150ef27, exConfigInfo=true, Timestamp=1626338797601}, requestId='null'}, retryTimes=0,errorMessage=Client not connected,current status:SHUTDOWN
+
+2021-07-15 16:46:37.819 [com.alibaba.nacos.client.Worker] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=ConfigBatchListenRequest{headers={Client-AppName=unknown, Client-RequestTS=1626338797601, charset=UTF-8, Client-RequestToken=3e1e66a6b3acd72c438a509cb150ef27, exConfigInfo=true, Timestamp=1626338797601}, requestId='null'}, retryTimes=1,errorMessage=Client not connected,current status:SHUTDOWN
+
+2021-07-15 16:46:37.926 [com.alibaba.nacos.client.Worker] [com.alibaba.nacos.common.remote.client] 
+ERROR: Send request fail, request=ConfigBatchListenRequest{headers={Client-AppName=unknown, Client-RequestTS=1626338797601, charset=UTF-8, Client-RequestToken=3e1e66a6b3acd72c438a509cb150ef27, exConfigInfo=true, Timestamp=1626338797601}, requestId='null'}, retryTimes=2,errorMessage=Client not connected,current status:SHUTDOWN
+
+2021-07-15 16:46:37.926 [com.alibaba.nacos.client.Worker] [com.alibaba.nacos.client.config.impl.ClientWorker] 
+ERROR: Async listen config change error 
+com.alibaba.nacos.api.exception.NacosException: Client not connected,current status:SHUTDOWN
+	at com.alibaba.nacos.common.remote.client.RpcClient.request(RpcClient.java:628)
+	at com.alibaba.nacos.client.config.impl.ClientWorker$ConfigRpcTransportClient.requestProxy(ClientWorker.java:976)
+	at com.alibaba.nacos.client.config.impl.ClientWorker$ConfigRpcTransportClient.requestProxy(ClientWorker.java:951)
+	at com.alibaba.nacos.client.config.impl.ClientWorker$ConfigRpcTransportClient.executeConfigListen(ClientWorker.java:757)
+	at com.alibaba.nacos.client.config.impl.ClientWorker$ConfigRpcTransportClient$3.run(ClientWorker.java:677)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run$$$capture(FutureTask.java:266)
+	at java.util.concurrent.FutureTask.run(FutureTask.java)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:180)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
