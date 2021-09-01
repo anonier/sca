@@ -3,22 +3,5 @@ server:
 spring:
   application:
     name: alpha-user
-  cloud:
-    nacos:
-      discovery:
-        server-addr: 192.168.1.134:8848
-        namespace: Dev
-        group: alpha
-      config:
-        server-addr: 192.168.1.134:8848
-        file-extension: yaml
-        namespace: Dev
-        group: alpha
-        shared-configs[0]:
-          data-id: common.yaml
-          group: alpha
-          refresh: true
-        shared-configs[1]:
-          data-id: config.yaml
-          group: alpha
-          refresh: true
+  profiles:
+    include: common

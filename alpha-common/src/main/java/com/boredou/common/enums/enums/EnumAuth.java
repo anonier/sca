@@ -13,7 +13,17 @@ public enum EnumAuth {
 
     PASSWD("password"),
 
+    DINGTALK_CODE("dingTalk_code"),
+
+    DINGTALK_QRCODE("dingTalk_qrcode"),
+
+    SMS_CODE("sms_code"),
+
     USERNAME("username"),
+
+    PHONE("phone"),
+
+    CODE("code"),
 
     ACCESS_TOKEN("access_token"),
 

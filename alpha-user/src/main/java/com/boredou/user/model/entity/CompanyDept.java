@@ -12,20 +12,18 @@ public class CompanyDept implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private String id;
 
     private String name;
 
     private String pId;
 
-    private Integer sysUserId;
+    private String sysUserId;
 
-    private Integer sort;
+    private String level;
 
-    private Integer companyId;
+    private String companyId;
 
     private Date gmtCreated;
-
     private Date gmtModified;
-
 }

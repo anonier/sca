@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.TokenGranter;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.TokenStore;
@@ -24,14 +25,15 @@ import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.security.KeyPair;
 
+/**
+ * oauth2授权配置
+ *
+ * @author yb
+ * @since 2021/5/27
+ */
 @Configuration
 @EnableAuthorizationServer
 class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
-
-    private static final String location = "jwt.jks";
-    private static final String secret = "jwtstore";
-    private static final String alias = "jwtkey";
-    private static final String password = "jwtpwd";
 
     @Resource
     private DataSource dataSource;
@@ -43,6 +45,8 @@ class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
     private AuthenticationManager authenticationManager;
     @Resource
     private TokenStore tokenStore;
+    @Resource
+    private TokenGranter tokenGranter;
 
     //客户端配置
     @Bean
@@ -62,14 +66,14 @@ class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
     }
 
     @Bean
-    public JwtAccessTokenConverter jwtAccessTokenConverter(CustomUserAuthenticationConverter customUserAuthenticationConverter) {
+    public JwtAccessTokenConverter jwtAccessTokenConverter(CustomUserAuthenticationConverter customConverter) {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        KeyPair keyPair = new KeyStoreKeyFactory(new ClassPathResource(location), secret.toCharArray())
-                .getKeyPair(alias, password.toCharArray());
+        KeyPair keyPair = new KeyStoreKeyFactory(new ClassPathResource(customConverter.getLocation()), customConverter.getSecret().toCharArray())
+                .getKeyPair(customConverter.getAlias(), customConverter.getPassword().toCharArray());
         converter.setKeyPair(keyPair);
         //配置自定义的CustomUserAuthenticationConverter
         DefaultAccessTokenConverter accessTokenConverter = (DefaultAccessTokenConverter) converter.getAccessTokenConverter();
-        accessTokenConverter.setUserTokenConverter(customUserAuthenticationConverter);
+        accessTokenConverter.setUserTokenConverter(customConverter);
         return converter;
     }
 
@@ -79,6 +83,7 @@ class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
         endpoints.accessTokenConverter(jwtAccessTokenConverter)
                 .authenticationManager(authenticationManager)//认证管理器
                 .tokenStore(tokenStore)//令牌存储
+                .tokenGranter(tokenGranter)
                 .userDetailsService(userDetailsService);//用户信息service
     }
 

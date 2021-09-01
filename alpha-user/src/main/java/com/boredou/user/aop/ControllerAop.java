@@ -5,17 +5,22 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.boredou.common.annotation.DetailLog;
+import com.boredou.common.enums.BizException;
+import com.boredou.common.module.log.BaseDataLog;
+import com.boredou.common.module.log.DataChange;
 import com.boredou.user.model.entity.SysLog;
-import com.boredou.user.model.log.BaseDataLog;
-import com.boredou.user.model.log.DataChange;
+import com.boredou.user.model.entity.SysMenu;
 import com.boredou.user.model.vo.SignInVo;
 import com.boredou.user.service.SysLogService;
+import com.boredou.user.service.SysMenuService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.session.SqlSession;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -30,10 +35,14 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * 接口aop拦截
+ *
  * @author yb
  * @since 2021-6-28
  */
@@ -43,14 +52,18 @@ import java.util.stream.Collectors;
 public class ControllerAop {
 
     @Resource
-    SysLogService sysLogService;
+    private SysLogService sysLogService;
     @Resource
-    BaseDataLog baseDataLog;
+    private BaseDataLog baseDataLog;
+    @Resource
+    private SysMenuService sysMenuService;
 
     ThreadLocal<Long> startTime = new ThreadLocal<>();
 
-    @Pointcut("execution(* com.boredou.user.controller.*.*(..)) && !@annotation(com.boredou.common.annotation.DetailLog)")
-    public void controllerLog() {
+    @Pointcut("execution(* com.boredou.user.controller.*.*(..)) " +
+            "&& @annotation(com.boredou.common.annotation.SysLog)" +
+            "&&!@annotation(com.boredou.common.annotation.DetailLog)")
+    public void SysLog() {
     }
 
     @PostConstruct
@@ -71,7 +84,7 @@ public class ControllerAop {
     }
 
     @AfterReturning(value = "@annotation(dataLog)", returning = "rtv")
-    public void after(JoinPoint joinPoint, DetailLog dataLog, Object rtv) throws ClassNotFoundException {
+    public void after(JoinPoint joinPoint, DetailLog dataLog, Object rtv) throws ClassNotFoundException, MalformedURLException {
         HttpServletRequest request = doLog(rtv, joinPoint, null);
         String apiOperationValue = getApiOperation(joinPoint, null);
         List<DataChange> list = BaseDataLog.DATA_CHANGES.get();
@@ -79,7 +92,17 @@ public class ControllerAop {
             return;
         }
         list.forEach(change -> {
-            List<?> oldData = change.getOldData();
+            List<?> oldData = null;
+            if (!change.getSqlStatement().equals(SqlCommandType.INSERT.name()) && !change.getSqlStatement().equals(SqlCommandType.DELETE.name())) {
+                oldData = change.getOldData();
+            } else {
+                change.setOldData(change.getNewData());
+                change.setNewData(new ArrayList<String>() {
+                    {
+                        add(change.getNewData().toString());
+                    }
+                });
+            }
             if (CollUtil.isEmpty(oldData)) {
                 return;
             }
@@ -97,16 +120,15 @@ public class ControllerAop {
             } finally {
                 SqlSessionUtils.closeSqlSession(sqlSession, change.getSqlSessionFactory());
             }
-            System.out.println("oldData:" + JSONUtil.toJsonStr(change.getOldData()));
-            System.out.println("newData:" + JSONUtil.toJsonStr(change.getNewData()));
         });
+        String operatorModule = getOperatorModule(request);
         sysLogService.save(SysLog.builder().ip(request.getRemoteAddr())
                 .name(joinPoint.getSignature().getName().equals("signIn") ? BeanUtil.copyProperties(Arrays.stream(joinPoint.getArgs()).findFirst().orElse(null), SignInVo.class).getUsername() : request.getRemoteUser())
                 .operatorTime(new Date())
                 .operatorName(apiOperationValue)
                 .operatorStatus("1")
-                .operatorModule(joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName())
-                .detail(this.compareAndTransfer(list)).build());
+                .operatorModule(operatorModule)
+                .detail(StringUtils.isBlank(this.compareAndTransfer(list)) ? "数据无变动" : this.compareAndTransfer(list)).build());
     }
 
     /**
@@ -122,10 +144,10 @@ public class ControllerAop {
             List<?> oldData = change.getOldData();
             List<?> newData = change.getNewData();
             // 更新前后数据量不对必定是删除（逻辑删除）不做处理
-            if (newData == null) {
+            if (ObjectUtil.isEmpty(newData)) {
                 return;
             }
-            if (oldData == null) {
+            if (ObjectUtil.isEmpty(oldData)) {
                 return;
             }
             if (oldData.size() != newData.size()) {
@@ -134,6 +156,12 @@ public class ControllerAop {
             // 按id排序
             oldData.sort(Comparator.comparingLong(d -> Long.parseLong(ReflectUtil.invoke(d, "getId").toString())));
             newData.sort(Comparator.comparingLong(d -> Long.parseLong(ReflectUtil.invoke(d, "getId").toString())));
+
+            if (change.getSqlStatement().equals(SqlCommandType.DELETE.name()) || change.getSqlStatement().equals(SqlCommandType.INSERT.name())) {
+                sb.append(change.getNewData().toString());
+                rsb.append(change.getNewData().toString());
+                return;
+            }
 
             for (int i = 0; i < oldData.size(); i++) {
                 final int[] finalI = {0};
@@ -169,24 +197,56 @@ public class ControllerAop {
         return sb.toString();
     }
 
-    @Around("controllerLog()")
+    @Around("SysLog()")
     public Object doControllerAround(ProceedingJoinPoint joinPoint) throws Throwable {
         startTime.set(System.currentTimeMillis());
         Object obj = joinPoint.proceed();
         HttpServletRequest request = doLog(obj, null, joinPoint);
         String apiOperationValue = getApiOperation(null, joinPoint);
-
+        String operatorModule = getOperatorModule(request);
         sysLogService.save(SysLog.builder().ip(request.getRemoteAddr())
                 .name(joinPoint.getSignature().getName().equals("signIn") ? BeanUtil.copyProperties(Arrays.stream(joinPoint.getArgs()).findFirst().orElse(null), SignInVo.class).getUsername() : request.getRemoteUser())
                 .operatorTime(new Date())
                 .operatorName(apiOperationValue)
                 .operatorStatus("1")
-                .operatorModule(joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName())
-                .detail("").build());
+                .operatorModule(operatorModule).build());
         return obj;
     }
 
-    public HttpServletRequest doLog(Object obj, JoinPoint jp, ProceedingJoinPoint pjp) {
+    /**
+     * 获取操作模块
+     *
+     * @param request {@link HttpServletRequest}
+     * @return String
+     */
+    private String getOperatorModule(HttpServletRequest request) throws MalformedURLException {
+        StringJoiner operatorModule = new StringJoiner("-");
+        if (Optional.ofNullable(request.getHeader("referer")).isPresent() && !(new URL(request.getHeader("referer")).getPath()).startsWith("/login")) {
+            try {
+                String path = new URL(request.getHeader("referer")).getPath().substring(1);
+                String[] parts = path.split("/");
+                parts[0] = "/" + parts[0];
+                for (String part : parts) {
+                    operatorModule.add(sysMenuService.getOne(new LambdaQueryWrapper<SysMenu>().eq(SysMenu::getUrl, part)).getTitle());
+                }
+            } catch (Exception e) {
+                throw new BizException("获取URL失败");
+            }
+        } else if (Optional.ofNullable(request.getHeader("referer")).isPresent() && (new URL(request.getHeader("referer")).getPath()).startsWith("/login")) {
+            operatorModule.add("登入");
+        } else {
+            operatorModule.add("接口测试");
+        }
+        return operatorModule.toString();
+    }
+
+    /**
+     * @param obj 返回内容
+     * @param jp  返回信息
+     * @param pjp 返回信息
+     * @return {@link HttpServletRequest}
+     */
+    private HttpServletRequest doLog(Object obj, JoinPoint jp, ProceedingJoinPoint pjp) {
         Signature signature;
         Object[] arrays;
         if (ObjectUtil.isEmpty(jp)) {
@@ -212,7 +272,7 @@ public class ControllerAop {
      *
      * @return String
      */
-    public String getApiOperation(JoinPoint jp, ProceedingJoinPoint pjp) throws ClassNotFoundException {
+    private String getApiOperation(JoinPoint jp, ProceedingJoinPoint pjp) throws ClassNotFoundException {
         Signature signature;
         if (ObjectUtil.isEmpty(jp)) {
             signature = pjp.getSignature();
@@ -221,14 +281,14 @@ public class ControllerAop {
         }
         Class<?> cl = Class.forName(signature.getDeclaringTypeName());
         Method[] methods = cl.getDeclaredMethods();
-        String apiOperationValue = null;
+        String apiOperationValue = "该接口未注明事件类型";
         for (Method method : methods) {
-            ApiOperation apiOperation = method.getAnnotation(ApiOperation.class);
             if (method.getName().equals(signature.getName())) {
+                ApiOperation apiOperation = method.getAnnotation(ApiOperation.class);
                 apiOperationValue = apiOperation.value();
+                break;
             }
         }
         return apiOperationValue;
     }
-
 }

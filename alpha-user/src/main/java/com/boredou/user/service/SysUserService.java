@@ -1,22 +1,14 @@
 package com.boredou.user.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.boredou.common.entity.AuthToken;
-import com.boredou.user.model.dto.NewUserDto;
-import com.boredou.user.model.entity.SysLog;
-import com.boredou.user.model.entity.SysUser;
+import com.boredou.common.module.entity.SysUser;
+import com.boredou.user.model.dto.AuthorityDto;
+import com.boredou.user.model.dto.UserDto;
+import com.boredou.user.model.result.LoginResult;
 
 import java.util.List;
 
 public interface SysUserService extends IService<SysUser> {
-
-    /**
-     * 根据id获取用户信息
-     *
-     * @param id 用户id
-     * @return {@link SysUser}
-     */
-    SysUser getUserById(int id);
 
     /**
      * 根据账号获取用户信息
@@ -27,13 +19,43 @@ public interface SysUserService extends IService<SysUser> {
     SysUser getUserByName(String username);
 
     /**
+     * 根据账号获取用户权限
+     *
+     * @param username 用户账号
+     * @return {@link List<AuthorityDto>}
+     */
+    List<AuthorityDto> getPermissions(String username);
+
+    /**
      * 登入
      *
      * @param username 用户名称
      * @param password 用户密码
-     * @return {@link AuthToken}
+     * @return {@link LoginResult}
      */
-    AuthToken login(String username, String password);
+    LoginResult login(String type, String username, String password, String code);
+
+    /**
+     * 通过手机账号绑定钉钉
+     *
+     * @param username 用户名称
+     */
+    void bindDingTalkByPhone(String username);
+
+    /**
+     * 通过扫码绑定钉钉
+     *
+     * @param code 二维码Code
+     */
+    void bindDingTalkByQrcode(String code);
+
+    /**
+     * 发送钉钉验证码
+     *
+     * @param username 账号
+     * @return 验证码
+     */
+    int sendDingTalkCode(String username);
 
     /**
      * 修改密码
@@ -44,8 +66,10 @@ public interface SysUserService extends IService<SysUser> {
 
     /**
      * 重置密码
+     *
+     * @param username 用户名
      */
-    void resetPasswd();
+    void resetPasswd(String username);
 
     /**
      * 退出登入
@@ -55,17 +79,9 @@ public interface SysUserService extends IService<SysUser> {
     /**
      * 新建用户
      *
-     * @param dto {@link NewUserDto}
+     * @param dto {@link UserDto}
      */
-    void newUser(NewUserDto dto);
-
-    /**
-     * 从redis获取token
-     *
-     * @param token token
-     * @return {@link AuthToken}
-     */
-    AuthToken getUserToken(String token);
+    void newUser(UserDto dto);
 
     /**
      * 删除token
@@ -82,30 +98,9 @@ public interface SysUserService extends IService<SysUser> {
     String getTokenFormCookie();
 
     /**
-     * 清除cookie
+     * 编辑/禁用用户
      *
-     * @param token token
+     * @param dto {@link UserDto}
      */
-    void clearCookie(String token);
-
-    /**
-     * 保存cookie
-     *
-     * @param token token
-     */
-    void saveCookie(String token);
-
-    /**
-     * 禁用用户
-     *
-     * @param id 用户id
-     */
-    void banUser(String id);
-
-    /**
-     * 最近动态
-     *
-     * @return {@link List<SysLog>}
-     */
-    List<SysLog> RecentDynamic();
+    void editUser(UserDto dto);
 }

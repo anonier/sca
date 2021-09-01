@@ -6,6 +6,7 @@ import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.alibaba.nacos.api.exception.NacosException;
+import com.boredou.common.enums.BizException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -21,6 +22,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
@@ -38,21 +40,23 @@ public class DynamicRoutingConfig implements ApplicationEventPublisherAware {
     @Value("${spring.cloud.nacos.config.namespace}")
     private String namespace;
 
-
     @Resource
     private RouteDefinitionWriter routeDefinitionWriter;
-
+    @Resource
     private ApplicationEventPublisher applicationEventPublisher;
+    private ConfigService configService;
 
     private static final List<String> ROUTE_LIST = new ArrayList<>();
-
-    private ConfigService configService;
 
     @PostConstruct
     public void dynamicRouteByNacosListener() {
         try {
             configService = initConfigService();
-            configService.getConfig(dataId, group, 5000);
+            if (Optional.ofNullable(configService).isPresent()) {
+                configService.getConfig(dataId, group, 5000);
+            } else {
+                throw new BizException("ConfigService初始化失败");
+            }
             parseRouteInfo(configService.getConfig(dataId, group, 5000));
             configService.addListener(dataId, group, new Listener() {
                 @Override
@@ -90,7 +94,7 @@ public class DynamicRoutingConfig implements ApplicationEventPublisherAware {
                 addRoute(routeDefinition);
             }
             publish();
-            log.info("Dynamic config gateway route finished. {}", JSON.toJSONString(gatewayRouteDefinitions));
+            log.info("Dynamic config gateway route finished.:" + JSON.toJSONString(gatewayRouteDefinitions));
         } catch (Exception e) {
             e.printStackTrace();
         }

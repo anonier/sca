@@ -26,12 +26,12 @@ public class Company implements Serializable {
 
     private Date authDate;
 
-    private String phoneLogin;
+    private String phoneCodeLogin;
 
-    private String dingtalkLogin;
+    private String dingTalkCodeLogin;
+
+    private String dingTalkQrcodeLogin;
 
     private Date gmtCreated;
-
     private Date gmtModified;
-
 }

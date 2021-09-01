@@ -36,5 +36,4 @@ public class SysPermissionServiceImpl extends ServiceImpl<SysPermissionMapper, S
     public List<SysPermission> getPermission(String id) {
         return this.list(new LambdaQueryWrapper<SysPermission>().eq(SysPermission::getRole_id, id));
     }
-
 }

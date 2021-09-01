@@ -1,5 +1,6 @@
 package com.boredou.gateway.config;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 拦截器
@@ -28,25 +30,26 @@ public class AuthorizeGatewayFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        log.info("**************come in MyLogGateWayFilter：" + new Date());
+        log.info("come in AuthorizeGatewayFilter：" + new Date());
+        log.info("URI：" + exchange.getRequest().getURI());
         //获取request中的uname参数
-        String Authorization = null;
-        if (!StringUtils.isBlank(exchange.getRequest().getHeaders().getFirst("Authorization"))) {
-            Authorization = exchange.getRequest().getHeaders().getFirst("Authorization");
-        }
-        if (exchange.getRequest().getCookies().containsKey(AUTHORIZE_UID)
-                && !exchange.getRequest().getPath().toString().contains("/signIn")
-                && !exchange.getRequest().getPath().toString().contains("/oauth")) {
-            String key = "user_token:" + exchange.getRequest().getCookies().getFirst("uid").getValue();
-            //从redis中取到令牌信息
-            if (!exchange.getRequest().getPath().toString().contains("/userJwt")
-                    && !stringRedisTemplate.hasKey(key)
-                    && StringUtils.isBlank(Authorization)) {
-                log.info("用户认证信息不存在");
-                exchange.getResponse().setStatusCode(HttpStatus.NOT_ACCEPTABLE);
-                return exchange.getResponse().setComplete();
-            } else if (exchange.getRequest().getPath().toString().contains("/userJwt")
-                    && !stringRedisTemplate.hasKey(key)) {
+        if (!exchange.getRequest().getPath().toString().contains("/signIn")
+                && !exchange.getRequest().getPath().toString().contains("/dingTalk)")
+                && !exchange.getRequest().getPath().toString().contains("/sendDingTalkCode")) {
+            String authorization = exchange.getRequest().getHeaders().getFirst("Authorization");
+            try {
+                String key = "user_token:" + Objects.requireNonNull(exchange.getRequest().getCookies().getFirst("uid")).getValue();
+                if (exchange.getRequest().getCookies().containsKey(AUTHORIZE_UID)
+                        && StringUtils.isNotBlank(authorization)
+                        && Boolean.TRUE.equals(stringRedisTemplate.hasKey(key))
+                        && authorization.substring(authorization.indexOf(" ")).trim().equals(JSONObject.parseObject(stringRedisTemplate.opsForValue().get(key)).get("access_token"))) {
+                    return chain.filter(exchange);
+                } else {
+                    log.info("用户认证信息不存在");
+                    exchange.getResponse().setStatusCode(HttpStatus.NOT_ACCEPTABLE);
+                    return exchange.getResponse().setComplete();
+                }
+            } catch (Exception e) {
                 log.info("用户认证信息不存在");
                 exchange.getResponse().setStatusCode(HttpStatus.NOT_ACCEPTABLE);
                 return exchange.getResponse().setComplete();

@@ -22,4 +22,6 @@ public class NewDeptVo {
     @ApiModelProperty(value = "公司id", name = "companyId", required = true)
     private Integer companyId;
 
+    @ApiModelProperty(value = "部门负责人", name = "sysUserId")
+    private Integer sysUserId;
 }

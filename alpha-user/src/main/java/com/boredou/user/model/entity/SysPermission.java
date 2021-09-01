@@ -21,5 +21,4 @@ public class SysPermission implements Serializable {
     private String menu_id;
 
     private Date create_time;
-
 }

@@ -2,9 +2,9 @@ package com.boredou.auth.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.boredou.auth.entity.SysUser;
-import com.boredou.auth.mapper.SysUserMapper;
 import com.boredou.auth.service.SysUserService;
+import com.boredou.common.module.entity.SysUser;
+import com.boredou.common.mapper.SysUserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
@@ -23,13 +23,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     SysUserMapper sysUserMapper;
 
     @Override
-    public SysUser getSysUser(String username) {
+    public SysUser getSysUserByUsername(String username) {
         return this.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername, username));
+    }
+
+    @Override
+    public SysUser getSysUserByPhone(String phone) {
+        return this.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getPhone, phone));
     }
 
     @Override
     public List<String> getSysUserPermission(String id) {
         return sysUserMapper.getSysUserPermission(id);
     }
-
 }

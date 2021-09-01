@@ -55,5 +55,4 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         role.setStatus("0");
         this.updateById(role);
     }
-
 }

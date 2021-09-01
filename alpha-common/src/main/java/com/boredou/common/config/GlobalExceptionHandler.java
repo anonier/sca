@@ -1,6 +1,6 @@
 package com.boredou.common.config;
 
-import com.boredou.common.entity.Response;
+import com.boredou.common.module.entity.Response;
 import com.boredou.common.enums.BizException;
 import com.boredou.common.enums.exception.Exceptions;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -102,12 +103,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Response handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         String message = valueValid(e);
+        log.error("异常！原因是:", e);
         return Response.fail(Exceptions.PARAM_VALID_ERROR, message);
     }
 
     @ExceptionHandler(BindException.class)
     public Response handleBindException(BindException e) {
         String message = valueValid(e);
+        log.error("异常！原因是:", e);
         return Response.fail(Exceptions.PARAM_BIND_ERROR, message);
     }
 
@@ -142,7 +145,7 @@ public class GlobalExceptionHandler {
         BindingResult bingResult = e.getBindingResult();
         FieldError error = bingResult.getFieldError();
         String message = e.getMessage();
-        if (error != null) {
+        if (Optional.ofNullable(error).isPresent()) {
             String field = error.getField();
             String code = error.getDefaultMessage();
             message = String.format("%s:%s", field, code);

@@ -14,5 +14,4 @@ import java.lang.annotation.*;
 @Inherited                          //允许子类继承
 @Documented
 public @interface DetailLog {
-
 }

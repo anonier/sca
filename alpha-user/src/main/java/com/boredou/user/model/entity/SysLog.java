@@ -29,5 +29,4 @@ public class SysLog implements Serializable {
     private Date operatorTime;
 
     private String detail;
-
 }

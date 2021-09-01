@@ -2,11 +2,14 @@ package com.boredou.common.util;
 
 import com.boredou.common.enums.BizException;
 import com.boredou.common.enums.exception.Exceptions;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.Map;
 
 /**
  * AES解密工具
@@ -17,13 +20,10 @@ import java.nio.charset.StandardCharsets;
 public class AESUtil {
 
     /**
-     * salt
-     */
-    private static final String AES_SALT = "jhyviaicdy751pp2";
-    /**
      * 密钥算法
      */
     private static final String ALGORITHM = "AES";
+
     /**
      * 加解密算法/工作模式/填充方式
      */
@@ -33,16 +33,16 @@ public class AESUtil {
      * AES-16-ECB加密
      *
      * @param sSrc 加密密码
-     * @return String
+     * @return Map
      */
-    public static String encrypt(String sSrc) {
+    public static Map<String, String> encrypt(String sSrc) {
         try {
-            byte[] raw = AES_SALT.getBytes(StandardCharsets.UTF_8);
-            SecretKeySpec sKeySpec = new SecretKeySpec(raw, ALGORITHM);
+            String salt = new Base64().encodeToString(SecureRandom.getInstanceStrong().generateSeed(12));
+            SecretKeySpec sKeySpec = new SecretKeySpec(salt.getBytes(StandardCharsets.UTF_8), ALGORITHM);
             Cipher cipher = Cipher.getInstance(ALGORITHM_STR);
             cipher.init(Cipher.ENCRYPT_MODE, sKeySpec);
             byte[] encrypted = cipher.doFinal(sSrc.getBytes(StandardCharsets.UTF_8));
-            return new Base64().encodeToString(encrypted);
+            return ImmutableMap.<String, String>builder().put("data", new Base64().encodeToString(encrypted)).put("aesKey", salt).build();
         } catch (Exception ex) {
             throw new BizException(Exceptions.FAILURE);
         }
@@ -54,9 +54,9 @@ public class AESUtil {
      * @param sSrc 加密密码
      * @return String
      */
-    public static String decrypt(String sSrc) {
+    public static String decrypt(String sSrc, String salt) {
         try {
-            byte[] raw = AES_SALT.getBytes(StandardCharsets.UTF_8);
+            byte[] raw = salt.getBytes(StandardCharsets.UTF_8);
             SecretKeySpec sKeySpec = new SecretKeySpec(raw, ALGORITHM);
             Cipher cipher = Cipher.getInstance(ALGORITHM_STR);
             cipher.init(Cipher.DECRYPT_MODE, sKeySpec);
@@ -67,5 +67,4 @@ public class AESUtil {
             throw new BizException(Exceptions.FAILURE);
         }
     }
-
 }

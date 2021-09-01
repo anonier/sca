@@ -12,14 +12,16 @@ import java.io.Serializable;
 public class SignInVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @NotBlank(message = "用户账号不能为空")
-    @ApiModelProperty(value = "用户账号", name = "username", example = "huangfeng", required = true)
+    @ApiModelProperty(value = "用户账号", name = "username", example = "huangfeng")
     String username;
 
-    @NotBlank(message = "用户密码不能为空")
-    @ApiModelProperty(value = "用户密码", name = "password", example = "123", required = true)
+    @ApiModelProperty(value = "用户密码", name = "password")
     String password;
 
-    String verifyCode;
+    @ApiModelProperty(value = "验证码", name = "code")
+    String code;
 
+    @NotBlank(message = "登入类型不能为空")
+    @ApiModelProperty(value = "登入类型", name = "type", required = true, example = "password,dingTalk_code,dingTalk_qrcode,sms_code")
+    String type;
 }

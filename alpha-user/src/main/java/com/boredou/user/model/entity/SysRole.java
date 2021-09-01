@@ -20,10 +20,8 @@ public class SysRole implements Serializable {
 
     private String description;
 
-    private Date createTime;
-
-    private Date updateTime;
-
     private String status;
 
+    private Date createTime;
+    private Date updateTime;
 }

@@ -1,4 +1,3 @@
-import com.boredou.common.util.AESUtil;
 import com.boredou.user.UserApplication;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Base64;
@@ -15,14 +14,7 @@ import java.security.spec.ECGenParameterSpec;
 public class UserTest {
 
     @Test
-    public void test1() {
-        String passwd = AESUtil.encrypt("123456");
-        System.out.println(passwd);
-        System.out.printf(AESUtil.decrypt(passwd));
-    }
-
-    @Test
-    public void test2() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+    public void test() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
         ECGenParameterSpec sm2Spec = new ECGenParameterSpec("sm2p256v1");
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC", new BouncyCastleProvider());
         kpg.initialize(sm2Spec);
@@ -32,5 +24,4 @@ public class UserTest {
         System.out.println(Base64.toBase64String(publicKey.getEncoded()));
         System.out.println(Base64.toBase64String(privateKey.getEncoded()));
     }
-
 }

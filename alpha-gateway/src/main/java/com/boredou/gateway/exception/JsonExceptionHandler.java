@@ -1,8 +1,5 @@
 package com.boredou.gateway.exception;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.web.ErrorProperties;
@@ -12,35 +9,35 @@ import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.ErrorAttributes;
 import org.springframework.cloud.gateway.support.NotFoundException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.web.reactive.function.server.RequestPredicates;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
-import org.springframework.web.reactive.function.server.ServerRequest;
-import org.springframework.web.reactive.function.server.ServerResponse;
- 
-public class JsonExceptionHandler extends DefaultErrorWebExceptionHandler  {
-	
-	private static final Logger log = LoggerFactory.getLogger(JsonExceptionHandler.class);
-	
+import org.springframework.web.reactive.function.server.*;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+public class JsonExceptionHandler extends DefaultErrorWebExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(JsonExceptionHandler.class);
+
     public JsonExceptionHandler(ErrorAttributes errorAttributes, Resources resources,
                                 ErrorProperties errorProperties, ApplicationContext applicationContext) {
         super(errorAttributes, resources, errorProperties, applicationContext);
     }
- 
-    
-    @Override
-	public Map<String, Object> getErrorAttributes(ServerRequest request, ErrorAttributeOptions options) {
-    	
-    	Throwable error = super.getError(request);
-    	int code = 500;
-    	if (error instanceof NotFoundException) {
-    		code = 404;
-    	}
-		
-		return response(code, this.buildMessage(request, error));
-	}
 
- 
+
+    @Override
+    public Map<String, Object> getErrorAttributes(ServerRequest request, ErrorAttributeOptions options) {
+
+        Throwable error = super.getError(request);
+        int code = 500;
+        if (error instanceof NotFoundException) {
+            code = 404;
+        }
+
+        return response(code, this.buildMessage(request, error));
+    }
+
+
     /**
      * 指定响应处理方法为JSON处理的方法
      *
@@ -50,8 +47,8 @@ public class JsonExceptionHandler extends DefaultErrorWebExceptionHandler  {
     protected RouterFunction<ServerResponse> getRoutingFunction(ErrorAttributes errorAttributes) {
         return RouterFunctions.route(RequestPredicates.all(), this::renderErrorResponse);
     }
- 
- 
+
+
     /**
      * 根据code获取对应的HttpStatus
      *
@@ -62,7 +59,7 @@ public class JsonExceptionHandler extends DefaultErrorWebExceptionHandler  {
         int statusCode = (int) errorAttributes.get("code");
         return statusCode;
     }
- 
+
     /**
      * 构建异常信息
      *
@@ -76,22 +73,22 @@ public class JsonExceptionHandler extends DefaultErrorWebExceptionHandler  {
         message.append(" ");
         message.append(request.uri());
         message.append("]");
-        if (ex == null) {
-        	 return message.toString();
+        if (!Optional.ofNullable(ex).isPresent()) {
+            return message.toString();
         }
-        
+
         message.append(": ");
         if (ex instanceof NotFoundException) {
-        	NotFoundException exx = ((NotFoundException)ex);
-        	message.append( exx.getStatus().getReasonPhrase());
-    	}else {
-    		
-    		message.append(ex.getMessage());
-    	}
-       
+            NotFoundException exx = ((NotFoundException) ex);
+            message.append(exx.getStatus().getReasonPhrase());
+        } else {
+
+            message.append(ex.getMessage());
+        }
+
         return message.toString();
     }
- 
+
     /**
      * 构建返回的JSON数据格式
      *

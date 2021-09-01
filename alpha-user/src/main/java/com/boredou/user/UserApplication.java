@@ -1,5 +1,6 @@
 package com.boredou.user;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -11,7 +12,8 @@ import springfox.documentation.oas.annotations.EnableOpenApi;
 @EnableDiscoveryClient
 @EnableFeignClients
 @EnableOpenApi
-@ComponentScan(value = "com.boredou.*")
+@ComponentScan("com.boredou.*")
+@MapperScan({"com.boredou.common.mapper", "com.boredou.user.model.mapper"})
 public class UserApplication {
     public static void main(String[] args) {
         SpringApplication.run(UserApplication.class, args);
