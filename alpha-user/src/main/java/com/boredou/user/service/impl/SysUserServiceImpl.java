@@ -4,7 +4,9 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.boredou.common.enums.BizException;
@@ -16,7 +18,10 @@ import com.boredou.common.mapper.SysUserMapper;
 import com.boredou.common.module.entity.SysUser;
 import com.boredou.common.util.CookieUtil;
 import com.boredou.common.util.MD5Util;
-import com.boredou.user.model.dto.*;
+import com.boredou.user.model.dto.AuthorityDto;
+import com.boredou.user.model.dto.AuthorityMetaDto;
+import com.boredou.user.model.dto.DingTalkBindDto;
+import com.boredou.user.model.dto.UserDto;
 import com.boredou.user.model.entity.*;
 import com.boredou.user.model.result.LoginResult;
 import com.boredou.user.service.*;
@@ -38,7 +43,6 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -53,7 +57,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RefreshScope
-@Transactional
+@DSTransactional
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
 
     @Value("${auth.clientId}")
@@ -62,6 +66,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private String clientSecret;
     @Value("${auth.cookieDomain}")
     private String cookieDomain;
+    @Value("${dingTalk.appSecret}")
+    private String appSecret;
+    @Value("${dingTalk.appKey}")
+    private String appKey;
     @Value("${auth.cookieMaxAge}")
     private int cookieMaxAge;
     @Value("${auth.tokenValiditySeconds}")
@@ -74,8 +82,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Resource
     private ApplyTokenService applyTokenService;
     @Resource
-    private SysPermissionService sysPermissionService;
-    @Resource
     private DingTalkService dingTalkService;
     @Resource
     private DingTalkUtil dingTalkUtil;
@@ -84,17 +90,19 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Resource
     private SysMenuService sysMenuService;
     @Resource
-    private SysUserService sysUserService;
+    private UserRoleService userRoleService;
+    @Resource
+    private SysRoleService sysRoleService;
 
     @Override
     public LoginResult login(String type, String username, String password, String code) {
         LoginResult loginResult;
         switch (type) {
             case "dingTalk_code":
-                loginResult = this.getToken(EnumAuth.DINGTALK_CODE.getDesc(), null, null, sysUserService.getUserByName(username).getPhone(), code, clientId, clientSecret);
+                loginResult = this.getToken(EnumAuth.DINGTALK_CODE.getDesc(), null, null, this.getUserByName(username).getPhone(), code, clientId, clientSecret);
                 break;
             case "sms_code":
-                loginResult = this.getToken(EnumAuth.SMS_CODE.getDesc(), null, null, sysUserService.getUserByName(username).getPhone(), code, clientId, clientSecret);
+                loginResult = this.getToken(EnumAuth.SMS_CODE.getDesc(), null, null, this.getUserByName(username).getPhone(), code, clientId, clientSecret);
                 break;
             case "dingTalk_qrcode":
                 OapiV2UserGetResponse rspGetResponse = getDingTalkUserInfo(code);
@@ -117,51 +125,71 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public List<AuthorityDto> getPermissions(String username) {
+        //查询所有用户所有菜单和权限
         SysUser user = this.getUserByName(username);
-        List<SysMenu> menus = new ArrayList<>();
-        sysPermissionService.list(
-                new LambdaQueryWrapper<SysPermission>().eq(SysPermission::getRole_id, user.getRoleId())
-        ).stream().forEach(sysPermission -> menus.add(sysMenuService.getOne(
-                new LambdaQueryWrapper<SysMenu>().eq(SysMenu::getId, sysPermission.getMenu_id()))));
-        List<AuthorityDto> authorityDtoList = new ArrayList<>();
-        List<SysMenu> firstMenus = menus.stream().filter(menu -> menu.getIsMenu().equals("1")
-                && menu.getLevel().equals("1")
-                && menu.getStatus().equals("1")).collect(Collectors.toList());
-        firstMenus.stream().forEach(firstMenu -> {
-            List<SysMenu> secondMenus = menus.stream().filter(menu -> menu.getIsMenu().equals("1")
-                    && StringUtils.isNotBlank(menu.getPId()) && menu.getPId().equals(firstMenu.getId())
-                    && menu.getLevel().equals("2")
-                    && menu.getStatus().equals("1")).collect(Collectors.toList());
-            List<AuthorityChildDto> childDtoList = new ArrayList<>();
-            secondMenus.stream().forEach(secondMenu -> {
-                List<SysMenu> authorities = menus.stream().filter(menu -> menu.getIsMenu().equals("0")
-                        && StringUtils.isNotBlank(menu.getPId()) && menu.getPId().equals(secondMenu.getId())
-                        && menu.getLevel().equals("3")
-                        && menu.getStatus().equals("1")).collect(Collectors.toList());
-                childDtoList.add(AuthorityChildDto.builder()
-                        .path(secondMenu.getUrl())
-                        .name(secondMenu.getName())
-                        .component(secondMenu.getComponent())
+        List<SysMenu> menus = sysMenuService.getMenus(user.getId());
+        //递归组装菜单和权限集
+        return authorityRecursion(menus, null, 1);
+    }
+
+    /**
+     * 用户权限递归
+     *
+     * @param menus   所有权限
+     * @param topMenu 父节点
+     * @param level   等级
+     * @return {@link List<AuthorityDto>}
+     */
+    private List<AuthorityDto> authorityRecursion(List<SysMenu> menus, SysMenu topMenu, int level) {
+        return menus.stream().filter(menu -> StringUtils.isNotBlank(menu.getLevel())
+                        && menu.getLevel().equals(String.valueOf(level)) && menu.getStatus().equals("1")
+                        && (level == 1 ? StringUtils.isBlank(menu.getPId()) && menu.getIsMenu().equals("1")
+                        : menu.getPId().equals(topMenu.getId()) && menu.getIsMenu().equals("1")))
+                .map(menu -> new ArrayList<>(Collections.singletonList(AuthorityDto.builder()
+                        .path(menu.getUrl())
+                        .name(menu.getName())
+                        .hidden(level > 2)
+                        .component(menu.getComponent())
+                        .children(hasLowMenu(menus, menu.getId(), level) ? authorityRecursion(menus, menu, level + 1) : null)
                         .meta(AuthorityMetaDto.builder()
-                                .title(secondMenu.getTitle())
-                                .icon(secondMenu.getIcon())
-                                .authorities(authorities)
+                                .title(menu.getTitle())
+                                .icon(menu.getIcon())
+                                .authorities(hasPermission(menus, menu.getId()) ? menus.stream().filter(authority -> authority.getIsMenu().equals("0")
+                                        && StringUtils.isNotBlank(authority.getPId())
+                                        && authority.getPId().equals(menu.getId())
+                                        && authority.getStatus().equals("1")).collect(Collectors.toList()) : null)
                                 .build())
-                        .build());
-            });
-            authorityDtoList.add(AuthorityDto.builder()
-                    .path(firstMenu.getUrl())
-                    .name(firstMenu.getName())
-                    .redirect((firstMenu.getUrl().equals("/") ? "" : firstMenu.getUrl()) + "/" + secondMenus.get(0).getUrl())
-                    .component(firstMenu.getComponent())
-                    .children(childDtoList)
-                    .meta(AuthorityMetaDto.builder()
-                            .title(firstMenu.getTitle())
-                            .icon(firstMenu.getIcon())
-                            .build())
-                    .build());
-        });
-        return authorityDtoList;
+                        .build()))
+                ).flatMap(Collection::stream).distinct().collect(Collectors.toList());
+    }
+
+    /**
+     * 是否有下级菜单
+     *
+     * @param menus 所有权限
+     * @param topId 该节点id
+     * @return boolean
+     */
+    private boolean hasLowMenu(List<SysMenu> menus, String topId, int level) {
+        return menus.stream().anyMatch(i -> StringUtils.isNotBlank(i.getLevel())
+                && StringUtils.isNotBlank(i.getPId())
+                && i.getLevel().equals(String.valueOf(level + 1))
+                && i.getPId().equals(topId)
+                && i.getStatus().equals("1"));
+    }
+
+    /**
+     * 该菜单是否有权限
+     *
+     * @param menus 所有权限
+     * @param topId 该节点id
+     * @return boolean
+     */
+    private boolean hasPermission(List<SysMenu> menus, String topId) {
+        return menus.stream().anyMatch(authority -> authority.getIsMenu().equals("0")
+                && StringUtils.isNotBlank(authority.getPId())
+                && authority.getPId().equals(topId)
+                && authority.getStatus().equals("1"));
     }
 
     @Override
@@ -170,7 +198,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if (user.getDingTalkBindStatus().equals("1")) {
             throw new BizException("账号已绑定");
         } else {
-            this.updateById(user.setDingTalkBindStatus("1"));
+            this.update(user.setDingTalkBindStatus("1"));
             dingTalkService.saveDingTalkMessage(user, null);
         }
     }
@@ -182,7 +210,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if (user.getDingTalkBindStatus().equals("1")) {
             throw new BizException("账号已绑定");
         } else {
-            this.updateById(user.setDingTalkBindStatus("1"));
+            this.update(user.setDingTalkBindStatus("1"));
             dingTalkService.saveDingTalkMessage(user, BeanUtil.copyProperties(rspGetResponse.getResult(), DingTalkBindDto.class));
         }
     }
@@ -191,7 +219,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      * 返回钉钉用户信息
      *
      * @param code 二维码Code
-     * @return OapiV2UserGetResponse {@link OapiV2UserGetResponse}
+     * @return 钉钉用户信息对象
      */
     private OapiV2UserGetResponse getDingTalkUserInfo(String code) {
         try {
@@ -201,7 +229,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             OapiSnsGetuserinfoBycodeRequest reqByCodeRequest = new OapiSnsGetuserinfoBycodeRequest();
             // 通过扫描二维码，跳转指定的redirect_uri后，向url中追加的code临时授权码
             reqByCodeRequest.setTmpAuthCode(code);
-            OapiSnsGetuserinfoBycodeResponse byCodeResponse = client2.execute(reqByCodeRequest, "dingggoigwdio5xvwwdd", "tOFVEvuIKDeDpoAqWHa4m5lWFX_UqJLxCPu_Z-4FXD0mp0M3r72NCH4SC0rH6Dx5");
+            OapiSnsGetuserinfoBycodeResponse byCodeResponse = client2.execute(reqByCodeRequest, appKey, appSecret);
             // 根据unionId获取userid
             String unionId = byCodeResponse.getUserInfo().getUnionid();
             DingTalkClient clientDingTalkClient = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/user/getbyunionid");
@@ -250,25 +278,18 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    @DS("write")
     public void modifyPasswd(String password) {
         SysUser user = this.getUserByName(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
         user.setPassword(MD5Util.encode(password));
-        this.updateById(user);
+        this.update(user);
     }
 
     @Override
-    @DS("write")
     public void resetPasswd(String username) {
-        SysUser user;
-        if (StringUtils.isBlank(username)) {
-            user = this.getUserByName(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-        } else {
-            user = this.getUserByName(username);
-        }
+        SysUser user = StringUtils.isBlank(username) ? this.getUserByName(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()) : this.getUserByName(username);
         user.setPassword(MD5Util.encode(ResponseBaseUser.USER_DEFALTE_PASSWD.getMessage()));
         user.setUpdateTime(new Date());
-        this.updateById(user);
+        this.update(user);
     }
 
     @Override
@@ -289,6 +310,22 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         SysUser user = BeanUtil.copyProperties(dto, SysUser.class).setStatus("1").setDingTalkBindStatus("0");
         try {
             this.save(user);
+            if (dto.getRoleIds().contains(",")) {
+                List<UserRole> userRoles = Arrays.stream(dto.getRoleIds().split(",")).map(id -> UserRole.builder()
+                        .roleId(id)
+                        .userId(user.getId())
+                        .createTime(new Date())
+                        .updateTime(new Date())
+                        .build()).collect(Collectors.toList());
+                userRoleService.saveBatch(userRoles);
+            } else {
+                userRoleService.save(UserRole.builder()
+                        .roleId(dto.getRoleIds())
+                        .userId(user.getId())
+                        .createTime(new Date())
+                        .updateTime(new Date())
+                        .build());
+            }
         } catch (Exception e) {
             throw new BizException(Exceptions.ADD_USER_FAIL);
         }
@@ -311,8 +348,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         switch (type) {
             case "dingTalk_code":
                 SysUser user = this.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getPhone, phone));
+                if (ObjectUtil.isEmpty(user)) {
+                    throw new BizException("用户不存在");
+                } else if (ObjectUtil.isNotEmpty(user) && user.getStatus().equals("0")) {
+                    throw new BizException("用户被禁用");
+                }
                 Company company = companyService.getById(user.getCompany());
-                if (ObjectUtil.isEmpty(company) || !company.getDingTalkCodeLogin().equals("1")) {
+                if (ObjectUtil.isEmpty(company) || company.getDingTalkCodeLogin().equals("0")) {
                     throw new BizException("该公司未开通钉钉验证码登入");
                 }
                 if (ObjectUtil.isNotEmpty(user)) {
@@ -325,8 +367,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 break;
             case "sms_code":
                 user = this.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getPhone, phone));
+                if (ObjectUtil.isEmpty(user)) {
+                    throw new BizException("用户不存在");
+                } else if (ObjectUtil.isNotEmpty(user) && user.getStatus().equals("0")) {
+                    throw new BizException("用户被禁用");
+                }
                 company = companyService.getById(user.getCompany());
-                if (ObjectUtil.isEmpty(company) || !company.getDingTalkQrcodeLogin().equals("1")) {
+                if (ObjectUtil.isEmpty(company) || company.getDingTalkQrcodeLogin().equals("0")) {
                     throw new BizException("该公司未开通手机验证码登入");
                 }
                 if (ObjectUtil.isNotEmpty(user)) {
@@ -339,8 +386,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 break;
             case "dingTalk_qrcode":
                 user = this.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getPhone, phone));
+                if (ObjectUtil.isEmpty(user)) {
+                    throw new BizException("用户不存在");
+                } else if (ObjectUtil.isNotEmpty(user) && user.getStatus().equals("0")) {
+                    throw new BizException("用户被禁用");
+                }
                 company = companyService.getById(user.getCompany());
-                if (ObjectUtil.isEmpty(company) || !company.getDingTalkQrcodeLogin().equals("1")) {
+                if (ObjectUtil.isEmpty(company) || company.getDingTalkQrcodeLogin().equals("0")) {
                     throw new BizException("该公司未开通钉钉二维码登入");
                 }
                 if (ObjectUtil.isNotEmpty(user)) {
@@ -353,13 +405,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 break;
             default:
                 user = this.getUserByName(username);
-                if (ObjectUtil.isNotEmpty(user)) {
-                    body.add(EnumAuth.GRANT_TYPE.getDesc(), EnumAuth.PASSWD.getDesc());
-                    body.add(EnumAuth.USERNAME.getDesc(), username);
-                    body.add(EnumAuth.PASSWD.getDesc(), password);
-                } else {
+                if (ObjectUtil.isEmpty(user)) {
                     throw new BizException("用户不存在");
+                } else if (ObjectUtil.isNotEmpty(user) && user.getStatus().equals("0")) {
+                    throw new BizException("用户被禁用");
                 }
+                body.add(EnumAuth.GRANT_TYPE.getDesc(), EnumAuth.PASSWD.getDesc());
+                body.add(EnumAuth.USERNAME.getDesc(), username);
+                body.add(EnumAuth.PASSWD.getDesc(), password);
         }
         String Authorization = CookieUtil.getHttpBasic(clientId, clientSecret);
         try {
@@ -386,15 +439,19 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    @DS("read")
     public SysUser getUserByName(String username) {
         return this.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername, username).eq(SysUser::getStatus, "1"));
     }
 
     @Override
     @DS("write")
+    public void update(SysUser sysUser) {
+        this.updateById(sysUser);
+    }
+
+    @Override
     public void editUser(UserDto dto) {
-        this.updateById(BeanUtil.copyProperties(dto, SysUser.class));
+        this.update(BeanUtil.copyProperties(dto, SysUser.class));
     }
 
     @Override
@@ -415,5 +472,29 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         } catch (Exception e) {
             throw new BizException(ExceptionRedis.DEL_FAIL);
         }
+    }
+
+    @Override
+    public void banUser(String id) {
+        SysUser user = this.getById(id);
+        user.setStatus("0");
+        this.update(user);
+    }
+
+    @Override
+    public List authorityManage(String id) {
+        List<SysRole> sysRoles = sysRoleService.list(new LambdaQueryWrapper<SysRole>().eq(SysRole::getCompany, id));
+        List<JSONObject> list = new ArrayList<>();
+        for (SysRole sysRole : sysRoles) {
+            JSONObject jsonObject = JSON.parseObject(JSONObject.toJSONString(sysRole));
+            jsonObject.put("users", sysRoleService.getUsers(sysRole.getId(), id));
+            list.add(jsonObject);
+        }
+        return list;
+    }
+
+    @Override
+    public List<SysUser> memberManage(String id) {
+        return this.baseMapper.getUsers(id);
     }
 }

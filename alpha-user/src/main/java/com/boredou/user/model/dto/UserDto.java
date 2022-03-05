@@ -27,7 +27,7 @@ public class UserDto implements Serializable {
 
     private String rank;
 
-    private String roleId;
+    private String roleIds;
 
     private String phone;
 

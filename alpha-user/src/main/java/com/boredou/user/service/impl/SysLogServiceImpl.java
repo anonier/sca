@@ -1,5 +1,7 @@
 package com.boredou.user.service.impl;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -12,31 +14,27 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Slf4j
 @Service
 @RefreshScope
-@Transactional
+@DSTransactional
 public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> implements SysLogService {
 
     @Override
-    public IPage<SysLog> getLogsByName(RecentDynamicDto dto) {
-        Page<SysLog> page = new Page<>(dto.getCurrent(), dto.getSize());
-        LambdaQueryWrapper<SysLog> wrapper = new LambdaQueryWrapper<SysLog>().eq(SysLog::getName, dto.getUsername());
-        Optional.ofNullable(dto.getStartDate())
-                .ifPresent(s ->
-                        wrapper.ge(SysLog::getOperatorTime, s)
-                );
-        Optional.ofNullable(dto.getFinishDate())
-                .ifPresent(f ->
-                        wrapper.le(SysLog::getOperatorTime, f)
-                );
-        if (StringUtils.isNotBlank(dto.getId())) {
-            wrapper.eq(SysLog::getOperatorModule, dto.getId());
-        }
-        return this.baseMapper.selectPage(page, wrapper);
+    public IPage<SysLog> getLogs(RecentDynamicDto dto) {
+        return this.baseMapper.selectPage(new Page<>(dto.getCurrent(), dto.getSize()), new LambdaQueryWrapper<SysLog>()
+                .eq(StringUtils.isNotBlank(dto.getUsername()), SysLog::getName, dto.getUsername())
+                .eq(StringUtils.isNotBlank(dto.getModule()), SysLog::getModule, dto.getModule())
+                .ge(Optional.ofNullable(dto.getStartDate()).isPresent(), SysLog::getOperatorTime, dto.getStartDate())
+                .le(Optional.ofNullable(dto.getFinishDate()).isPresent(), SysLog::getOperatorTime, dto.getFinishDate()));
+    }
+
+    @Override
+    @DS("write")
+    public void saveLog(SysLog sysLog) {
+        this.save(sysLog);
     }
 }

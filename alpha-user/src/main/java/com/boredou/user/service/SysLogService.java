@@ -15,5 +15,12 @@ public interface SysLogService extends IService<SysLog> {
      * @param recentDynamicDto {@link RecentDynamicDto}
      * @return {@link List<SysLog>}
      */
-    IPage<SysLog> getLogsByName(RecentDynamicDto recentDynamicDto);
+    IPage<SysLog> getLogs(RecentDynamicDto recentDynamicDto);
+
+    /**
+     * 保存log
+     *
+     * @param sysLog {@link SysLog}
+     */
+    void saveLog(SysLog sysLog);
 }

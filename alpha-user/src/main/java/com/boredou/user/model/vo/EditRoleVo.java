@@ -19,5 +19,4 @@ public class EditRoleVo implements Serializable {
     @NotBlank(message = "权限id不能为空")
     @ApiModelProperty(value = "多个权限id,以,分割", name = "ids", required = true)
     private String ids;
-
 }

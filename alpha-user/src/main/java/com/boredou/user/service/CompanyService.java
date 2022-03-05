@@ -5,7 +5,10 @@ import com.boredou.user.model.dto.CoStructDto;
 import com.boredou.user.model.dto.CompanyEditDto;
 import com.boredou.user.model.entity.Company;
 import com.boredou.user.model.entity.CompanyDept;
+import com.boredou.user.model.entity.SysBalance;
+import com.boredou.user.model.vo.RechargeVo;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface CompanyService extends IService<Company> {
@@ -39,4 +42,18 @@ public interface CompanyService extends IService<Company> {
      * @return {@link List<CompanyDept>}
      */
     List<CompanyDept> getCoDeptById(int id);
+
+    /**
+     * 根据公司id获取公司余额
+     *
+     * @return {@link BigDecimal}
+     */
+    BigDecimal getBalance(String id);
+
+    /**
+     * 根据公司id充值
+     *
+     * @param rechargeVo {@link RechargeVo}
+     */
+    void recharge(RechargeVo rechargeVo);
 }

@@ -12,4 +12,6 @@ public class NewRoleDto implements Serializable {
 
     private String roleName;
     private String ids;
+    private String description;
+    private String company;
 }

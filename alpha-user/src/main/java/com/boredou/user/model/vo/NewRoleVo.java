@@ -16,8 +16,15 @@ public class NewRoleVo implements Serializable {
     @ApiModelProperty(value = "角色名称", name = "roleName", required = true)
     private String roleName;
 
+    @NotBlank(message = "角色描述不能为空")
+    @ApiModelProperty(value = "角色描述", name = "description", required = true)
+    private String description;
+
+    @NotBlank(message = "角色所属公司不能为空")
+    @ApiModelProperty(value = "角色所属公司", name = "company", required = true)
+    private String company;
+
     @NotBlank(message = "角色权限id不能为空")
     @ApiModelProperty(value = "多个角色权限id,以,分割", name = "ids", required = true)
     private String ids;
-
 }

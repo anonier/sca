@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Data
-@ApiModel(value = "UserVo", description = "添加、编辑和禁用用户入参对象")
+@ApiModel(value = "UserVo", description = "添加和编辑用户入参对象")
 public class UserVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -36,8 +36,8 @@ public class UserVo implements Serializable {
     @ApiModelProperty(value = "职级", name = "rank")
     private String rank;
 
-    @ApiModelProperty(value = "角色id", name = "roleId")
-    private String roleId;
+    @ApiModelProperty(value = "角色id,以','分割", name = "roleIds")
+    private String roleIds;
 
     @ApiModelProperty(value = "手机号", name = "phone")
     private String phone;

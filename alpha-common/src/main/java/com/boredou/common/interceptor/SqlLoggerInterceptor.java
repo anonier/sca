@@ -55,31 +55,28 @@ public class SqlLoggerInterceptor implements Interceptor {
 
         //将参数和映射文件组合在一起得到BoundSql对象
         BoundSql boundSql = mappedStatement.getBoundSql(parameter);
+
         //获取配置信息
         Configuration configuration = mappedStatement.getConfiguration();
-
         log.info("/*---------------java:" + sqlId + "[begin]---------------*/");
+
         //通过配置信息和BoundSql对象来生成带值得sql语句
         String sql = geneSql(configuration, boundSql);
-
         log.info("==> sql:" + sql);
-        long start = System.currentTimeMillis();
 
-        long end = System.currentTimeMillis();
-        long time = (end - start);
-        log.info("<== sql执行历时：" + time + "毫秒");
+        //SELECT和其他分别处理
         if (SqlCommandType.SELECT.equals(mappedStatement.getSqlCommandType())) {
-            return invocation.proceed();
+            return doProceed(invocation, sqlId);
         } else {
             // 使用mybatis-plus 工具解析sql获取表名
             Collection<String> tables = new TableNameParser(sql).tables();
             if (CollectionUtils.isEmpty(tables)) {
-                return invocation.proceed();
+                return doProceed(invocation, sqlId);
             }
             String tableName = tables.iterator().next();
             // 排除表名判断
             if (BaseDataLog.excludeTableNames.contains(tableName)) {
-                return invocation.proceed();
+                return doProceed(invocation, sqlId);
             }
             // 使用mybatis-plus 工具根据表名找出对应的实体类
             TableInfo tableInfo = Optional.ofNullable(TableInfoHelper.getTableInfo(tableName))
@@ -93,7 +90,7 @@ public class SqlLoggerInterceptor implements Interceptor {
             // 同表对同条数据操作多次只进行一次对比
             if (BaseDataLog.DATA_CHANGES.get().stream().anyMatch(c -> tableName.equals(c.getTableName())
                     && selectSql.equals(c.getWhereSql()))) {
-                return invocation.proceed();
+                return doProceed(invocation, sqlId);
             }
             change.setWhereSql(selectSql);
             Map<String, Object> map = new HashMap<>(1);
@@ -111,7 +108,7 @@ public class SqlLoggerInterceptor implements Interceptor {
                     }
                 });
                 BaseDataLog.DATA_CHANGES.get().add(change);
-                return invocation.proceed();
+                return doProceed(invocation, sqlId);
             }
             if (SqlCommandType.DELETE.equals(mappedStatement.getSqlCommandType())) {
                 change.setSqlStatement(mappedStatement.getSqlCommandType().name());
@@ -121,7 +118,7 @@ public class SqlLoggerInterceptor implements Interceptor {
                     }
                 });
                 BaseDataLog.DATA_CHANGES.get().add(change);
-                return invocation.proceed();
+                return doProceed(invocation, sqlId);
             }
             try {
                 List<?> oldData = sqlSession.selectList(change.getSqlStatement(), map);
@@ -131,7 +128,15 @@ public class SqlLoggerInterceptor implements Interceptor {
             }
             BaseDataLog.DATA_CHANGES.get().add(change);
         }
-        return invocation.proceed();
+        return doProceed(invocation, sqlId);
+    }
+
+    private Object doProceed(Invocation invocation, String sqlId) throws InvocationTargetException, IllegalAccessException {
+        long start = System.currentTimeMillis();
+        Object o = invocation.proceed();
+        log.info("<== sql执行历时：" + (System.currentTimeMillis() - start) + "毫秒");
+        log.info("/*---------------java:" + sqlId + "[finish]---------------*/");
+        return o;
     }
 
     /**

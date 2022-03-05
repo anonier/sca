@@ -27,8 +27,6 @@ public class UserJwt extends User {
     @Getter
     private String rank;
     @Getter
-    private String roleId;
-    @Getter
     private String phone;
     @Getter
     private String email;
@@ -42,7 +40,7 @@ public class UserJwt extends User {
     private String company;
 
     public UserJwt(String id, String name, String employeeId, String position
-            , String department, String rank, String roleId, String phone
+            , String department, String rank, String phone
             , String email, Integer qq, Date entryTime, String company, String dingTalkBindStatus
             , String username, String password, Collection<? extends GrantedAuthority> authorities) {
         super(username, password, authorities);
@@ -52,7 +50,6 @@ public class UserJwt extends User {
         this.position = position;
         this.department = department;
         this.rank = rank;
-        this.roleId = roleId;
         this.phone = phone;
         this.email = email;
         this.qq = qq;

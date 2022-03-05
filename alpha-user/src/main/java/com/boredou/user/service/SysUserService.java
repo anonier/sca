@@ -7,6 +7,7 @@ import com.boredou.user.model.dto.UserDto;
 import com.boredou.user.model.result.LoginResult;
 
 import java.util.List;
+import java.util.Map;
 
 public interface SysUserService extends IService<SysUser> {
 
@@ -17,6 +18,13 @@ public interface SysUserService extends IService<SysUser> {
      * @return {@link SysUser}
      */
     SysUser getUserByName(String username);
+
+    /**
+     * 根据用户id更新用户信息
+     *
+     * @param sysUser {@link SysUser}
+     */
+    void update(SysUser sysUser);
 
     /**
      * 根据账号获取用户权限
@@ -98,9 +106,32 @@ public interface SysUserService extends IService<SysUser> {
     String getTokenFormCookie();
 
     /**
-     * 编辑/禁用用户
+     * 编辑用户
      *
      * @param dto {@link UserDto}
      */
     void editUser(UserDto dto);
+
+    /**
+     * 禁用用户
+     *
+     * @param id 用户id
+     */
+    void banUser(String id);
+
+    /**
+     * 权限管理界面
+     *
+     * @param id 公司id
+     * @return {@link Map}
+     */
+    List authorityManage(String id);
+
+    /**
+     * 用户管理界面
+     *
+     * @param id 公司id
+     * @return {@link List<SysUser>}
+     */
+    List<SysUser> memberManage(String id);
 }

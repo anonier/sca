@@ -2,6 +2,7 @@ package com.boredou.user.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.boredou.common.module.entity.SysUser;
 import com.boredou.user.model.dto.DingTalkBindDto;
@@ -14,22 +15,21 @@ import com.boredou.user.util.DingTalkUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
 @Slf4j
 @Service
 @RefreshScope
-@Transactional
+@DSTransactional
 public class DingTalkServiceImpl implements DingTalkService {
 
     @Resource
-    DingTalkUserService dingTalkUserService;
+    private DingTalkUserService dingTalkUserService;
     @Resource
-    DingTalkInfoService dingTalkInfoService;
+    private DingTalkInfoService dingTalkInfoService;
     @Resource
-    DingTalkUtil dingTalkUtil;
+    private DingTalkUtil dingTalkUtil;
 
 
     @Override
@@ -44,14 +44,9 @@ public class DingTalkServiceImpl implements DingTalkService {
 
     @Override
     public void saveDingTalkMessage(SysUser user, DingTalkBindDto dto) {
-        String userId;
         DingTalkUser dingTalkUser;
-        if (ObjectUtil.isEmpty(dto)) {
-            userId = dingTalkUtil.getUserId(user.getPhone());
-            dto = dingTalkUtil.getUserInfo(userId);
-        } else {
-            userId = dto.getResult().getUserid();
-        }
+        String userId = ObjectUtil.isEmpty(dto) ? dingTalkUtil.getUserId(user.getPhone()) : dto.getResult().getUserid();
+        dto = ObjectUtil.isEmpty(dto) ? dingTalkUtil.getUserInfo(userId) : dto;
         dingTalkUser = DingTalkUser.builder().username(dto.getResult().getName())
                 .dingTalkState("1")
                 .email(dto.getResult().getEmail())
@@ -60,16 +55,16 @@ public class DingTalkServiceImpl implements DingTalkService {
                 .build();
         DingTalkUser ddUser = dingTalkUserService.getById(new LambdaQueryWrapper<DingTalkUser>().eq(DingTalkUser::getId, dingTalkInfoService.getOne(new LambdaQueryWrapper<DingTalkInfo>().eq(DingTalkInfo::getUserId, dto.getResult().getUserid())).getDUserId()));
         if (ObjectUtil.isEmpty(ddUser)) {
-            dingTalkUserService.save(dingTalkUser);
+            dingTalkUserService.saveUser(dingTalkUser);
         } else {
             BeanUtil.copyProperties(dingTalkUser, ddUser);
-            dingTalkUserService.updateById(ddUser);
+            dingTalkUserService.update(ddUser);
         }
         DingTalkInfo dingTalkInfo = dingTalkInfoService.getOne(new LambdaQueryWrapper<DingTalkInfo>().
                 eq(DingTalkInfo::getUserId, dto.getResult().getUserid()).
                 eq(DingTalkInfo::getUnionId, dto.getResult().getUnionid()));
         if (ObjectUtil.isEmpty(dingTalkInfo)) {
-            dingTalkInfoService.save(DingTalkInfo.builder()
+            dingTalkInfoService.saveInfo(DingTalkInfo.builder()
                     .userId(userId)
                     .dUserId(dingTalkUser.getId())
                     .unionId(dto.getResult().getUnionid()).build());

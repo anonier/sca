@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder
@@ -23,6 +24,8 @@ public class SysLog implements Serializable {
     private String operatorStatus;
 
     private String ip;
+
+    private String module;
 
     private String operatorModule;
 

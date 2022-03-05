@@ -2,12 +2,15 @@ package com.boredou.user.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
+@Builder
 public class Company implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -23,6 +26,8 @@ public class Company implements Serializable {
     private String officeWebsite;
 
     private String defaultPassword;
+
+    private BigDecimal balance;
 
     private Date authDate;
 

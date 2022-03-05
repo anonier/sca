@@ -46,7 +46,7 @@ public class UserCtrl {
     @SysLog
     @ApiOperation("登入")
     @PostMapping("signIn")
-    public Response signIn(@RequestBody @Validated @ApiParam(name = "SignInVo", value = "登入对象", required = true) SignInVo vo) {
+    public Response<Object> signIn(@RequestBody @Validated @ApiParam(name = "SignInVo", value = "登入对象", required = true) SignInVo vo) {
         LoginResult loginResult = sysUserService.login(vo.getType(), vo.getUsername(), vo.getPassword(), vo.getCode());
         return Response.success(SignInResult.builder().accessToken(loginResult.getJti()).jwtToken(loginResult.getAccess_token()).build());
     }
@@ -54,7 +54,7 @@ public class UserCtrl {
     @SysLog
     @ApiOperation("手机号绑定钉钉")
     @PostMapping("bindDingTalkByPhone")
-    public Response bindDingTalkByPhone() {
+    public Response<Object> bindDingTalkByPhone() {
         sysUserService.bindDingTalkByPhone(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
         return Response.success();
     }
@@ -62,7 +62,7 @@ public class UserCtrl {
     @SysLog
     @ApiOperation("扫码绑定钉钉")
     @PostMapping("bindDingTalkByQrcode")
-    public Response bindDingTalkByQrcode(@ApiParam(name = "code", value = "二维码Code") @RequestParam("code") String code) {
+    public Response<Object> bindDingTalkByQrcode(@ApiParam(name = "code", value = "二维码Code") @RequestParam("code") String code) {
         sysUserService.bindDingTalkByQrcode(code);
         return Response.success();
     }
@@ -70,26 +70,22 @@ public class UserCtrl {
     @SysLog
     @ApiOperation("发送钉钉验证码")
     @GetMapping("sendDingTalkCode")
-    public Response sendDingTalkCode(@ApiParam(name = "username", value = "用户名", required = true) @RequestParam("username") String username) {
+    public Response<Object> sendDingTalkCode(@ApiParam(name = "username", value = "用户名", required = true) @RequestParam("username") String username) {
         return Response.success(sysUserService.sendDingTalkCode(username));
     }
 
     @DetailLog
     @ApiOperation("重置密码")
     @PostMapping("resetPasswd")
-    public Response resetPasswd(@ApiParam(name = "username", value = "用户名") @RequestParam(value = "username", required = false) String username) {
-        if (StringUtils.isBlank(username)) {
-            sysUserService.resetPasswd("");
-        } else {
-            sysUserService.resetPasswd(username);
-        }
+    public Response<Object> resetPasswd(@ApiParam(name = "username", value = "用户名") @RequestParam(value = "username", required = false) String username) {
+        sysUserService.resetPasswd(StringUtils.isBlank(username) ? null : username);
         return Response.success();
     }
 
     @SysLog
     @ApiOperation("修改密码")
     @PostMapping("modifyPasswd")
-    public Response modifyPasswd(@ApiParam(name = "password", value = "密码", required = true) @RequestParam("password") String password) {
+    public Response<Object> modifyPasswd(@ApiParam(name = "password", value = "密码", required = true) @RequestParam("password") String password) {
         sysUserService.modifyPasswd(password);
         return Response.success();
     }
@@ -97,7 +93,7 @@ public class UserCtrl {
     @SysLog
     @ApiOperation("新建角色")
     @PostMapping("newRole")
-    public Response newRole(@RequestBody @Validated @ApiParam(name = "NewRoleVo", value = "添加角色对象", required = true) NewRoleVo vo) {
+    public Response<Object> newRole(@RequestBody @Validated @ApiParam(name = "NewRoleVo", value = "添加角色对象", required = true) NewRoleVo vo) {
         sysRoleService.newRole(BeanUtil.copyProperties(vo, NewRoleDto.class));
         return Response.success();
     }
@@ -105,7 +101,7 @@ public class UserCtrl {
     @SysLog
     @ApiOperation("编辑角色权限")
     @PostMapping("editRole")
-    public Response editRole(@RequestBody @Validated @ApiParam(name = "EditRoleVo", value = "编辑角色对象", required = true) EditRoleVo vo) {
+    public Response<Object> editRole(@RequestBody @Validated @ApiParam(name = "EditRoleVo", value = "编辑角色对象", required = true) EditRoleVo vo) {
         sysRoleService.editRole(BeanUtil.copyProperties(vo, EditRoleDto.class));
         return Response.success();
     }
@@ -113,7 +109,7 @@ public class UserCtrl {
     @SysLog
     @ApiOperation("禁用角色")
     @PostMapping("banRole")
-    public Response banRole(@ApiParam(name = "id", value = "角色id", required = true) @RequestParam("id") String id) {
+    public Response<Object> banRole(@ApiParam(name = "id", value = "角色id", required = true) @RequestParam("id") String id) {
         sysRoleService.banRole(id);
         return Response.success();
     }
@@ -121,37 +117,57 @@ public class UserCtrl {
     @SysLog
     @ApiOperation("添加用户")
     @PostMapping("newUser")
-    public Response newUser(@RequestBody @Validated @ApiParam(name = "NewUserVo", value = "添加用户对象", required = true) UserVo vo) {
+    public Response<Object> newUser(@RequestBody @Validated @ApiParam(name = "NewUserVo", value = "添加用户对象", required = true) UserVo vo) {
         sysUserService.newUser(BeanUtil.copyProperties(vo, UserDto.class));
         return Response.success();
     }
 
     @SysLog
-    @ApiOperation("编辑/禁用用户")
+    @ApiOperation("编辑用户")
     @PostMapping("editUser")
-    public Response editUser(@RequestBody @Validated @ApiParam(name = "NewUserVo", value = "编辑或禁用用户对象", required = true) UserVo vo) {
+    public Response<Object> editUser(@RequestBody @Validated @ApiParam(name = "NewUserVo", value = "编辑或禁用用户对象", required = true) UserVo vo) {
         sysUserService.editUser(BeanUtil.copyProperties(vo, UserDto.class));
+        return Response.success();
+    }
+
+    @SysLog
+    @ApiOperation("禁用用户")
+    @PostMapping("banUser")
+    public Response<Object> banUser(@ApiParam(name = "id", value = "用户id", required = true) @RequestParam("id") String id) {
+        sysUserService.banUser(id);
         return Response.success();
     }
 
     @ApiOperation("获取权限信息")
     @GetMapping("authorization")
-    public Response authorization() {
+    public Response<Object> authorization() {
         return Response.success(sysUserService.getPermissions(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()));
     }
 
     @ApiOperation("退出")
     @PostMapping("logout")
-    public Response logout() {
+    public Response<Object> logout() {
         sysUserService.logout();
         return Response.success();
     }
 
     @ApiOperation("最近动态")
     @GetMapping("recentDynamic")
-    public Response RecentDynamic(@Validated @ApiParam(name = "RecentDynamicVo", value = "最近动态参数", required = true) RecentDynamicVo vo) {
+    public Response<Object> recentDynamic(@Validated @ApiParam(name = "RecentDynamicVo", value = "最近动态参数", required = true) RecentDynamicVo vo) {
         RecentDynamicDto recentDynamicDto = BeanUtil.copyProperties(vo, RecentDynamicDto.class);
-        return Response.success(sysLogService.getLogsByName(recentDynamicDto.setUsername(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString())));
+        return Response.success(sysLogService.getLogs(recentDynamicDto.setUsername(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString())));
+    }
+
+    @ApiOperation("权限管理界面")
+    @GetMapping("authorityManage")
+    public Response<Object> authorityManage(@ApiParam(name = "id", value = "公司Id", required = true) @RequestParam("id") String id) {
+        return Response.data(sysUserService.authorityManage(id));
+    }
+
+    @ApiOperation("成员管理界面")
+    @GetMapping("memberManage")
+    public Response<Object> memberManage(@ApiParam(name = "id", value = "公司Id", required = true) @RequestParam("id") String id) {
+        return Response.data(sysUserService.memberManage(id));
     }
 
 //    @PostMapping("/add")

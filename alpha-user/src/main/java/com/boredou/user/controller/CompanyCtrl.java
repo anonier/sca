@@ -38,34 +38,34 @@ public class CompanyCtrl {
 
     @ApiOperation("获取公司信息")
     @GetMapping("detail")
-    public Response getCoById(@ApiParam(name = "id", value = "公司id", required = true) @RequestParam("id") String id) {
+    public Response<Object> getCoById(@ApiParam(name = "id", value = "公司id", required = true) @RequestParam("id") String id) {
         return Response.success(companyService.getCoById(id));
     }
 
     @SysLog
     @ApiOperation("企业信息编辑及登入设置")
     @GetMapping("edit")
-    public Response edit(@RequestBody @Validated @ApiParam(name = "CompanyEditVo", value = "企业信息编辑对象", required = true) CompanyEditVo vo) {
+    public Response<Object> edit(@RequestBody @Validated @ApiParam(name = "CompanyEditVo", value = "企业信息编辑对象", required = true) CompanyEditVo vo) {
         companyService.edit(BeanUtil.copyProperties(vo, CompanyEditDto.class));
         return Response.success();
     }
 
     @ApiOperation("获取部门信息")
     @GetMapping("dept/detail")
-    public Response getCoDeptById(@ApiParam(name = "id", value = "公司id", required = true) @RequestParam("id") Integer id) {
+    public Response<Object> getCoDeptById(@ApiParam(name = "id", value = "公司id", required = true) @RequestParam("id") Integer id) {
         return Response.success(companyService.getCoDeptById(id));
     }
 
     @ApiOperation("获取企业架构信息")
     @GetMapping("dept/struct")
-    public Response getCoDeptStructById(@ApiParam(name = "id", value = "公司id", required = true) @RequestParam("id") String id) {
+    public Response<Object> getCoDeptStructById(@ApiParam(name = "id", value = "公司id", required = true) @RequestParam("id") String id) {
         return Response.success(companyService.getCoStructById(id));
     }
 
     @SysLog
     @ApiOperation("添加部门")
     @PostMapping("newDept")
-    public Response newDept(@RequestBody @Validated @ApiParam(name = "NewDeptVo", value = "新建部门对象", required = true) NewDeptVo vo) {
+    public Response<Object> newDept(@RequestBody @Validated @ApiParam(name = "NewDeptVo", value = "新建部门对象", required = true) NewDeptVo vo) {
         companyDeptService.newCoDept(BeanUtil.copyProperties(vo, NewDeptDto.class));
         return Response.success();
     }
@@ -73,7 +73,7 @@ public class CompanyCtrl {
     @SysLog
     @ApiOperation("编辑部门")
     @PostMapping("updateDept")
-    public Response updateDept(@RequestBody @Validated @ApiParam(name = "UpdateDeptVo", value = "编辑部门对象", required = true) UpdateDeptVo vo) {
+    public Response<Object> updateDept(@RequestBody @Validated @ApiParam(name = "UpdateDeptVo", value = "编辑部门对象", required = true) UpdateDeptVo vo) {
         companyDeptService.updateDept(BeanUtil.copyProperties(vo, UpdateDeptDto.class));
         return Response.success();
     }

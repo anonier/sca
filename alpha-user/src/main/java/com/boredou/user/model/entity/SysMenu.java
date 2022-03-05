@@ -48,13 +48,13 @@ public class SysMenu implements Serializable {
      */
     private String sort;
     /**
-     * 状态
-     */
-    private String status;
-    /**
      * 图标
      */
     private String icon;
+    /**
+     * 状态
+     */
+    private String status;
 
     private Date createTime;
     private Date updateTime;

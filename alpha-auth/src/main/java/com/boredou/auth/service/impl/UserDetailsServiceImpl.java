@@ -48,9 +48,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             String password = sysUser.getPassword();
             userDetails = new UserJwt(sysUser.getId(), sysUser.getName(), sysUser.getEmployeeId()
                     , sysUser.getPosition(), sysUser.getDepartment(), sysUser.getRank()
-                    , sysUser.getRoleId(), sysUser.getPhone(), sysUser.getEmail(), sysUser.getQq()
-                    , sysUser.getEntryTime(), sysUser.getCompany(), sysUser.getDingTalkBindStatus()
-                    , username, password, AuthorityUtils.commaSeparatedStringToAuthorityList(""));
+                    , sysUser.getPhone(), sysUser.getEmail(), sysUser.getQq(), sysUser.getEntryTime()
+                    , sysUser.getCompany(), sysUser.getDingTalkBindStatus(), username, password
+                    , AuthorityUtils.commaSeparatedStringToAuthorityList(""));
             return userDetails;
         }
         return null;
@@ -63,9 +63,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             String password = sysUser.getPassword();
             userDetails = new UserJwt(sysUser.getId(), sysUser.getName(), sysUser.getEmployeeId()
                     , sysUser.getPosition(), sysUser.getDepartment(), sysUser.getRank()
-                    , sysUser.getRoleId(), sysUser.getPhone(), sysUser.getEmail(), sysUser.getQq()
-                    , sysUser.getEntryTime(), sysUser.getCompany(), sysUser.getDingTalkBindStatus()
-                    , sysUser.getUsername(), password, AuthorityUtils.commaSeparatedStringToAuthorityList(""));
+                    , sysUser.getPhone(), sysUser.getEmail(), sysUser.getQq(), sysUser.getEntryTime()
+                    , sysUser.getCompany(), sysUser.getDingTalkBindStatus(), sysUser.getUsername(), password
+                    , AuthorityUtils.commaSeparatedStringToAuthorityList(""));
             return userDetails;
         }
         return null;

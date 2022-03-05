@@ -53,7 +53,6 @@ public class CustomUserAuthenticationConverter extends DefaultUserAuthentication
             response.put("position", userJwt.getPosition());
             response.put("department", userJwt.getDepartment());
             response.put("rank", userJwt.getRank());
-            response.put("roleId", userJwt.getRoleId());
             response.put("phone", userJwt.getPhone());
             response.put("email", userJwt.getEmail());
             response.put("qq", String.valueOf(userJwt.getQq()));

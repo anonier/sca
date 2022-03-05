@@ -24,9 +24,10 @@ public class SwaggerConfig {
     @Value("${spring.application.name}")
     private String applicationName;
 
-    public static final String USER = "用户管理";
-    public static final String COMPANY = "企业管理";
-    public static final String DingTalk = "钉钉模块";
+    public static final String USER = "用户";
+    public static final String COMPANY = "企业";
+    public static final String FINANCE = "财务";
+    public static final String DingTalk = "钉钉";
 
     @Bean
     public Docket createDocket() {
@@ -45,9 +46,10 @@ public class SwaggerConfig {
                                 && !o.requestMappingPattern().contains("/dingTalk)")
                                 && !o.requestMappingPattern().contains("/sendDingTalkCode"))
                         .build()))
-                .tags(new Tag(USER, "用户相关模块接口"))
+                .tags(new Tag(USER, "用户模块接口"))
                 .tags(new Tag(DingTalk, "钉钉模块接口"))
-                .tags(new Tag(COMPANY, "企业管理相关模块接口"));
+                .tags(new Tag(FINANCE, "财务模块接口"))
+                .tags(new Tag(COMPANY, "企业管理模块接口"));
     }
 
     private ApiInfo apiInfo() {

@@ -17,7 +17,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.web.reactive.result.view.ViewResolver;
- 
+
 /**
  * 自定义异常处理
  */
@@ -25,30 +25,27 @@ import org.springframework.web.reactive.result.view.ViewResolver;
 @EnableConfigurationProperties({ServerProperties.class, ResourceProperties.class})
 public class ExceptionHandlerConfiguration {
     private final ServerProperties serverProperties;
- 
+
     private final ApplicationContext applicationContext;
- 
+
     private final Resources resources;
- 
+
     private final List<ViewResolver> viewResolvers;
- 
+
     private final ServerCodecConfigurer serverCodecConfigurer;
- 
-    public ExceptionHandlerConfiguration(ServerProperties serverProperties,  Resources resources,
-                                         ObjectProvider<List<ViewResolver>> viewResolversProvider, ServerCodecConfigurer serverCodecConfigurer,
-                                         ApplicationContext applicationContext) {
+
+    public ExceptionHandlerConfiguration(ServerProperties serverProperties, Resources resources, ObjectProvider<List<ViewResolver>> viewResolversProvider, ServerCodecConfigurer serverCodecConfigurer, ApplicationContext applicationContext) {
         this.serverProperties = serverProperties;
         this.applicationContext = applicationContext;
         this.resources = resources;
         this.viewResolvers = viewResolversProvider.getIfAvailable(Collections::emptyList);
         this.serverCodecConfigurer = serverCodecConfigurer;
     }
- 
+
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public ErrorWebExceptionHandler errorWebExceptionHandler(ErrorAttributes errorAttributes) {
-        JsonExceptionHandler exceptionHandler = new JsonExceptionHandler(errorAttributes, this.resources,
-                this.serverProperties.getError(), this.applicationContext);
+        JsonExceptionHandler exceptionHandler = new JsonExceptionHandler(errorAttributes, this.resources, this.serverProperties.getError(), this.applicationContext);
         exceptionHandler.setViewResolvers(this.viewResolvers);
         exceptionHandler.setMessageWriters(this.serverCodecConfigurer.getWriters());
         exceptionHandler.setMessageReaders(this.serverCodecConfigurer.getReaders());

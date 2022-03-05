@@ -7,6 +7,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * 公司部门
+ */
 @Data
 public class CompanyDept implements Serializable {
     private static final long serialVersionUID = 1L;

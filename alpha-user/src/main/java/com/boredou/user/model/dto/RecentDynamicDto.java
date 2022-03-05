@@ -21,5 +21,5 @@ public class RecentDynamicDto extends Page implements Serializable {
 
     private Date finishDate;
 
-    private String id;
+    private String module;
 }

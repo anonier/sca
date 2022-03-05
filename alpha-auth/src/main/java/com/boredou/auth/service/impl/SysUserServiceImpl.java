@@ -1,14 +1,14 @@
 package com.boredou.auth.service.impl;
 
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.boredou.auth.service.SysUserService;
-import com.boredou.common.module.entity.SysUser;
 import com.boredou.common.mapper.SysUserMapper;
+import com.boredou.common.module.entity.SysUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RefreshScope
-@Transactional(rollbackFor = Exception.class)
+@DSTransactional
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
 
     @Resource

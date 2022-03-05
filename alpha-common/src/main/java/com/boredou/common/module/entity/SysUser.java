@@ -32,8 +32,6 @@ public class SysUser implements Serializable {
 
     private String rank;
 
-    private String roleId;
-
     private String phone;
 
     private String email;

@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  alpha-user:
+    #    image: alpha-user:latest
+    restart: always
+    ports:
+      - "8071:8071"
+      - "5007:5007"
+    build:
+      context: ./alpha-user
+      dockerfile: Dockerfile
+    container_name: alpha-user
+    volumes:
+      - /logs/alpha:/logs/alpha
+  alpha-gateway:
+    restart: always
+    ports:
+      - "7999:7999"
+      - "5007:5005"
+    build:
+      context: ./alpha-gateway
+      dockerfile: Dockerfile
+    container_name: alpha-gateway
+    volumes:
+      - /logs/alpha:/logs/alpha
+  alpha-auth:
+    restart: always
+    ports:
+      - "8081:8081"
+      - "5006:5006"
+    build:
+      context: ./alpha-auth
+      dockerfile: Dockerfile
+    container_name: alpha-auth
+    volumes:
+      - /logs/alpha:/logs/alpha

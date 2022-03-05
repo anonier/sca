@@ -2,6 +2,7 @@ package com.boredou.user.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.boredou.common.enums.BizException;
 import com.boredou.user.model.dto.NewDeptDto;
@@ -12,14 +13,13 @@ import com.boredou.user.service.CompanyDeptService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
 @Slf4j
 @Service
 @RefreshScope
-@Transactional
+@DSTransactional
 public class CompanyDeptServiceImpl extends ServiceImpl<CompanyDeptMapper, CompanyDept> implements CompanyDeptService {
 
     @Override

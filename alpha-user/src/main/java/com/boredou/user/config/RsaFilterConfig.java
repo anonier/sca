@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RsaFilterConfig {
 
-    @Value("${spring.cloud.nacos.discovery.namespace}")
+    @Value("${environment}")
     private String environment;
     @Value("${rsa.rsaPubKey}")
     private String rsaPubKey;

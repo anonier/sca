@@ -17,5 +17,4 @@ public class UpdateDeptVo {
     @NotNull(message = "部门负责人不能为空")
     @ApiModelProperty(value = "部门负责人id", name = "sysUserId", required = true)
     private String sysUserId;
-
 }

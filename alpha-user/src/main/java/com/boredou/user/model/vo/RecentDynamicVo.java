@@ -23,6 +23,6 @@ public class RecentDynamicVo extends PageVo implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date finishDate;
 
-    @ApiModelProperty(value = "模块id", name = "id")
-    private String id;
+    @ApiModelProperty(value = "模块", name = "module")
+    private String module;
 }
